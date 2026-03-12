@@ -2,40 +2,44 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { 
+  Trophy, 
+  Calendar, 
+  ChevronRight, 
+  ArrowLeft,
+  BookOpen
+} from "lucide-react";
 
 export default function QuizAttempts() {
   const navigate = useNavigate();
   const [attempts, setAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchAttempts = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:5000/api/student-attempts",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setAttempts(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchAttempts = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/quiz-attempts",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setAttempts(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAttempts();
   }, [token]);
-
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
 
   // Group attempts by course
   const grouped = attempts.reduce((acc, attempt) => {
@@ -45,290 +49,149 @@ export default function QuizAttempts() {
     return acc;
   }, {});
 
+  const fetchCourseAttempts = async (courseId) => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        `http://localhost:5000/api/quiz-attempts/course/${courseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // We can update the grouped data or just show these attempts
+      // Since 'grouped' is derived from 'attempts', we should update 'attempts' or handle it separately
+      // The user wants: "When a course is selected, display all quiz attempts for that course."
+      // Actually, if we already have all attempts, we don't strictly NEED another fetch,
+      // but the user's Step 3 explicitly asks for GET /api/quiz-attempts/course/:courseId.
+      // So I will update the local state with the fetched attempts for that course.
+      setAttempts(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCourseClick = (title) => {
+    setSelectedCourse(title);
+    const courseId = grouped[title][0].course?._id;
+    if (courseId) {
+      fetchCourseAttempts(courseId);
+    }
+  };
+
+  const handleBackToCourses = () => {
+    setSelectedCourse(null);
+    fetchAttempts();
+  };
+
+  const courseTitles = Object.keys(grouped).filter(key => 
+    key.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
+    <div className="p-8 lg:p-12 space-y-12">
+      <div className="max-w-5xl mx-auto space-y-8">
+        
+        {selectedCourse ? (
+          <button 
+            onClick={handleBackToCourses}
+            className="flex items-center gap-2 text-indigo-500 font-bold hover:translate-x-1 transition-transform uppercase tracking-widest text-[10px]"
+          >
+            <ArrowLeft size={16} /> Back to Courses
+          </button>
+        ) : null}
 
-      {/* SIDEBAR */}
-      <div className="w-72 bg-slate-950 text-gray-300 p-6 border-r border-slate-800">
-        <h2 className="text-2xl font-bold text-white mb-10">
-          Learning Portal
-        </h2>
-
-        <ul className="space-y-2 text-sm">
-          <li onClick={() => navigate("/student-dashboard")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            Dashboard
-          </li>
-
-          <li onClick={() => navigate("/available-courses")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            Available Courses
-          </li>
-
-          <li onClick={() => navigate("/my-courses-student")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            My Courses
-          </li>
-
-          <li onClick={() => navigate("/completed-courses")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            Completed Courses
-          </li>
-
-          <li className="p-3 rounded-lg bg-indigo-600 text-white font-semibold">
-            Quiz Attempts
-          </li>
-
-          <li onClick={() => navigate("/student-analytics")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            Analytics
-          </li>
-
-          <li onClick={handleLogout} className="p-3 mt-8 text-red-400 hover:bg-red-900/20 cursor-pointer">
-            Logout
-          </li>
-        </ul>
-      </div>
-
-      {/* MAIN */}
-      <div className="flex-1 p-10 text-white">
-        <h1 className="text-3xl font-bold mb-8 text-indigo-400">
-          Quiz Attempts
-        </h1>
+        <div className="space-y-4">
+          <h2 className="text-3xl font-black uppercase tracking-tight leading-none">
+            {selectedCourse ? selectedCourse : "Quiz Attempts"}
+          </h2>
+          <p className="text-[var(--secondary)] font-bold italic opacity-80">
+            {selectedCourse ? "Detailed history for this course." : "Select a course to view your quiz history."}
+          </p>
+        </div>
 
         {loading ? (
-          <p className="text-gray-400">Loading attempts...</p>
-        ) : Object.keys(grouped).length === 0 ? (
-          <p className="text-gray-400">No quiz attempts yet.</p>
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+             <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+             <p className="text-[10px] font-black uppercase tracking-widest text-[var(--secondary)] animate-pulse">Loading Archives...</p>
+          </div>
+        ) : attempts.length === 0 ? (
+          <div className="glass-card p-20 text-center border-dashed border-2 flex flex-col items-center gap-6">
+             <div className="w-16 h-16 bg-[var(--background)] border border-[var(--border)] rounded-3xl flex items-center justify-center text-gray-300 shadow-inner">
+                <Trophy size={32} />
+             </div>
+             <div>
+                <h3 className="text-xl font-black uppercase tracking-tight mb-1">No Attempts</h3>
+                <p className="text-xs text-[var(--secondary)] font-bold italic">You haven't attempted any quizzes yet.</p>
+             </div>
+          </div>
+        ) : !selectedCourse ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {courseTitles.map(title => (
+              <div 
+                key={title}
+                onClick={() => handleCourseClick(title)}
+                className="glass-card p-8 group cursor-pointer hover:border-indigo-500/50 hover:-translate-y-2 transition-all duration-500"
+              >
+                <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  <BookOpen size={24} />
+                </div>
+                <h3 className="text-xl font-black uppercase tracking-tight mb-2 group-hover:text-indigo-500 transition-colors text-[var(--foreground)]">{title}</h3>
+                <p className="text-xs text-gray-500 font-bold">{grouped[title].length} Attempts Recorded</p>
+                <div className="mt-8 flex items-center gap-2 text-indigo-500 font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                  View History <ChevronRight size={14} />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
-          Object.keys(grouped).map((courseTitle) => (
-            <div key={courseTitle} className="mb-10">
-              <h2 className="text-2xl font-semibold text-indigo-300 mb-4">
-                {courseTitle}
-              </h2>
-
-              {grouped[courseTitle].map((attempt, index) => (
-                <div
-                  key={attempt._id}
-                  onClick={() => navigate(`/quiz-attempt/${attempt._id}`)}
-                  className="bg-slate-800 p-6 rounded-xl mb-4 border border-slate-700"
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold">
-                        Attempt {grouped[courseTitle].length - index}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {new Date(attempt.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-lg font-bold">
-                        {attempt.score}%
-                      </p>
-                      {attempt.score >= 60 ? (
-                        <span className="text-green-400 font-semibold">
-                          Pass
-                        </span>
-                      ) : (
-                        <span className="text-red-400 font-semibold">
-                          Fail
-                        </span>
-                      )}
-                    </div>
+          <div className="space-y-4">
+            {grouped[selectedCourse].map((attempt, index) => (
+              <div
+                key={attempt._id}
+                onClick={() => navigate(`/quiz-attempt/${attempt._id}`)}
+                className="glass-card p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 group cursor-pointer hov border-transparent hover:border-indigo-500 transition-all hover:-translate-y-1"
+              >
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 bg-[var(--background)] border border-[var(--border)] rounded-2xl flex items-center justify-center shadow-inner group-hover:bg-indigo-600 transition-all">
+                    <Trophy size={24} className={attempt.score >= 60 ? 'text-amber-500' : 'text-gray-300'}/>
                   </div>
-
-                  <div className="mt-4 flex gap-6 text-sm text-gray-300">
-                    <p>Correct: {attempt.correctCount}</p>
-                    <p>Wrong: {attempt.wrongCount}</p>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="mt-3 w-full bg-slate-700 rounded-full h-2">
-                    <div
-                      className="bg-indigo-500 h-2 rounded-full"
-                      style={{ width: `${attempt.score}%` }}
-                    ></div>
+                  <div>
+                    <p className="font-black text-lg uppercase tracking-tight group-hover:text-indigo-500 text-[var(--foreground)]">Attempt #{grouped[selectedCourse].length - index}</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase flex items-center gap-1">
+                      <Calendar size={12}/> {new Date(attempt.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          ))
+
+                <div className="flex items-center gap-8">
+                  <div className="text-center hidden sm:block">
+                    <p className="text-[9px] font-black uppercase tracking-widest mb-1">Score</p>
+                    <div className="h-1.5 w-24 bg-[var(--background)] rounded-full overflow-hidden border border-[var(--border)]">
+                      <div 
+                        className={`h-full ${attempt.score >= 60 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                        style={{ width: `${attempt.score}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-3xl font-black leading-none ${attempt.score >= 60 ? 'text-emerald-500' : 'text-rose-500'}`}>{attempt.score}%</p>
+                    <p className={`text-[10px] font-black uppercase tracking-widest ${attempt.score >= 60 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                      {attempt.score >= 60 ? 'Passed' : 'Failed'}
+                    </p>
+                  </div>
+                  <div className="p-2 bg-indigo-500/5 rounded-xl group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                    <ChevronRight size={20}/>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
   );
 }
-
-
-
-
-// import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import axios from "axios";
-
-// export default function QuizAttempts() {
-//   const navigate = useNavigate();
-//   const [attempts, setAttempts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   const token = localStorage.getItem("token");
-
-//   useEffect(() => {
-//     const fetchAttempts = async () => {
-//       try {
-//         const res = await axios.get(
-//           "http://localhost:5000/api/quiz/student-attempts",
-//           {
-//             headers: {
-//               Authorization: `Bearer ${token}`,
-//             },
-//           }
-//         );
-//         setAttempts(res.data);
-//       } catch (err) {
-//         console.error(err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchAttempts();
-//   }, [token]);
-
-//   const handleLogout = () => {
-//     localStorage.clear();
-//     navigate("/login");
-//   };
-
-//   // Group attempts by course
-//   const grouped = attempts.reduce((acc, attempt) => {
-//     const title = attempt.course?.title || "Unknown Course";
-//     if (!acc[title]) acc[title] = [];
-//     acc[title].push(attempt);
-//     return acc;
-//   }, {});
-
-//   return (
-//     <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
-
-//       {/* SIDEBAR */}
-//       <div className="w-72 bg-slate-950 text-gray-300 p-6 border-r border-slate-800">
-//         <h2 className="text-2xl font-bold text-white mb-10">
-//           Learning Portal
-//         </h2>
-
-//         <ul className="space-y-2 text-sm">
-//           <li onClick={() => navigate("/student-dashboard")} className="p-3 hover:bg-slate-800 cursor-pointer">
-//             Dashboard
-//           </li>
-
-//           <li onClick={() => navigate("/available-courses")} className="p-3 hover:bg-slate-800 cursor-pointer">
-//             Available Courses
-//           </li>
-
-//           <li onClick={() => navigate("/my-courses-student")} className="p-3 hover:bg-slate-800 cursor-pointer">
-//             My Courses
-//           </li>
-
-//           <li onClick={() => navigate("/completed-courses")} className="p-3 hover:bg-slate-800 cursor-pointer">
-//             Completed Courses
-//           </li>
-
-//           <li className="p-3 rounded-lg bg-indigo-600 text-white font-semibold">
-//             Quiz Attempts
-//           </li>
-
-//           <li onClick={() => navigate("/student-analytics")} className="p-3 hover:bg-slate-800 cursor-pointer">
-//             Analytics
-//           </li>
-
-//           <li onClick={handleLogout} className="p-3 mt-8 text-red-400 hover:bg-red-900/20 cursor-pointer">
-//             Logout
-//           </li>
-//         </ul>
-//       </div>
-
-//       {/* MAIN */}
-//       <div className="flex-1 p-10 text-white">
-//         <h1 className="text-3xl font-bold mb-8 text-indigo-400">
-//           Quiz Attempts
-//         </h1>
-
-//         {loading ? (
-//           <p className="text-gray-400">Loading attempts...</p>
-//         ) : Object.keys(grouped).length === 0 ? (
-//           <p className="text-gray-400">No quiz attempts yet.</p>
-//         ) : (
-//           Object.keys(grouped).map((courseTitle) => (
-//             <div key={courseTitle} className="mb-10">
-//               <h2 className="text-2xl font-semibold text-indigo-300 mb-4">
-//                 {courseTitle}
-//               </h2>
-
-//               {grouped[courseTitle].map((attempt, index) => (
-//                 <div
-//                   key={attempt._id}
-//                   onClick={() => navigate(`/quiz-attempt/${attempt._id}`)}
-//                   className="bg-slate-800 p-6 rounded-xl mb-4 border border-slate-700 hover:scale-[1.01] transition-all duration-300 cursor-pointer"
-//                 >
-//                   <div className="flex justify-between items-center">
-//                     <div>
-//                       <p className="font-semibold">
-//                         Attempt {grouped[courseTitle].length - index}
-//                       </p>
-//                       <p className="text-sm text-gray-400">
-//                         {new Date(attempt.createdAt).toLocaleString()}
-//                       </p>
-//                     </div>
-
-//                     <div className="text-right">
-//                       <p className="text-lg font-bold">
-//                         {attempt.score}%
-//                       </p>
-//                       {attempt.score >= 60 ? (
-//                         <span className="text-green-400 font-semibold">
-//                           Pass
-//                         </span>
-//                       ) : (
-//                         <span className="text-red-400 font-semibold">
-//                           Fail
-//                         </span>
-//                       )}
-//                     </div>
-//                   </div>
-
-//                   {/* ✅ BASIC COMPARISON DISPLAY */}
-//                   <div className="mt-3 text-sm">
-//                     {attempt.previousScore === null ? (
-//                       <span className="text-gray-400">
-//                         First Attempt
-//                       </span>
-//                     ) : attempt.improved ? (
-//                       <span className="text-green-400 font-medium">
-//                         ↑ Improved by {attempt.scoreDifference}%
-//                       </span>
-//                     ) : (
-//                       <span className="text-red-400 font-medium">
-//                         ↓ Dropped by {Math.abs(attempt.scoreDifference)}%
-//                       </span>
-//                     )}
-//                   </div>
-
-//                   <div className="mt-4 flex gap-6 text-sm text-gray-300">
-//                     <p>Correct: {attempt.correctCount}</p>
-//                     <p>Wrong: {attempt.wrongCount}</p>
-//                   </div>
-
-//                   {/* Progress bar */}
-//                   <div className="mt-3 w-full bg-slate-700 rounded-full h-2">
-//                     <div
-//                       className="bg-indigo-500 h-2 rounded-full transition-all duration-500"
-//                       style={{ width: `${attempt.score}%` }}
-//                     ></div>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-//           ))
-//         )}
-//       </div>
-//     </div>
-//   );
-// }

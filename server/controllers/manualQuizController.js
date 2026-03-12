@@ -2,6 +2,7 @@
 const Quiz = require("../models/Quiz");
 const QuizAttempt = require("../models/QuizAttempt");
 const CourseProgress = require("../models/CourseProgress");
+const { evaluateCourseCompletion } = require("../services/completionHelper");
 //const { getEnhancedStudentAttempts } = require("../services/quizService");
 
 // ======================================================
@@ -88,17 +89,10 @@ exports.submitCourseQuiz = async (req, res) => {
       timeSpent,
     });
 
-    // 2️⃣ If passed → mark course completed
-    if (score >= 60) {
-      await CourseProgress.findOneAndUpdate(
-        { student: req.user.id, course: courseId },
-        {
-          completed: true,
-          completedAt: new Date(),
-        },
-        { upsert: true, new: true }
-      );
-    }
+
+
+    // 🔄 Sync Course Completion (Strict)
+    await evaluateCourseCompletion(req.user.id, courseId);
 
     res.json({
       message: "Quiz attempt saved",
@@ -120,7 +114,10 @@ exports.getCompletedCourses = async (req, res) => {
       completed: true,
     }).populate("course");
 
-    res.json(completed);
+    // 🛡️ Safety Check: Ignore progress records where course does not exist
+    const validCompleted = completed.filter(p => p.course !== null);
+
+    res.json(validCompleted);
 
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -199,6 +196,27 @@ exports.getStudentQuizAttempts = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// ======================================================
+// 🟢 GET ATTEMPTS BY COURSE (STUDENT)
+// ======================================================
+exports.getAttemptsByCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const attempts = await QuizAttempt.find({
+      student: req.user.id,
+      course: courseId
+    })
+    .populate("course", "title")
+    .sort({ createdAt: -1 });
+
+    res.json(attempts);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
 // // ======================================================
 // // 🟢 GET ALL QUIZ ATTEMPTS (STUDENT) - WITH BASIC COMPARISON
 // // ======================================================
@@ -260,9 +278,33 @@ exports.getSingleAttempt = async (req, res) => {
       return res.status(404).json({ message: "Attempt not found" });
     }
 
-    // Security check → student can see only their attempt
+    // Security check
     if (attempt.student.toString() !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized access" });
+    }
+
+    // Fetch REAL quiz questions to ensure current options/text are available if needed
+    // The user wants REAL data from Quiz model matched by questionId
+    const quiz = await Quiz.findOne({ course: attempt.course._id });
+    
+    if (quiz) {
+      // Enrich answers with real question data if questionId matches
+      const enrichedAnswers = attempt.answers.map(ans => {
+        const realQ = quiz.questions.id(ans.questionId) || quiz.questions.find(q => q._id.toString() === ans.questionId?.toString());
+        if (realQ) {
+          return {
+            ...ans.toObject(),
+            question: realQ.question,
+            options: realQ.options,
+            correctAnswer: realQ.correctAnswer
+          };
+        }
+        return ans;
+      });
+      
+      const enrichedAttempt = attempt.toObject();
+      enrichedAttempt.answers = enrichedAnswers;
+      return res.json(enrichedAttempt);
     }
 
     res.json(attempt);

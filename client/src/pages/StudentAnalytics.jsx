@@ -1,6 +1,14 @@
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { 
+  BarChart3, 
+  TrendingUp, 
+  CheckCircle, 
+  Clock, 
+  Award, 
+  Target
+} from "lucide-react";
 import {
   PieChart,
   Pie,
@@ -12,19 +20,10 @@ import {
 } from "recharts";
 
 export default function StudentAnalytics() {
-  const navigate = useNavigate();
-  const [openProfile, setOpenProfile] = useState(false);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const storedName = localStorage.getItem("name") || "Student";
   const token = localStorage.getItem("token");
-  const initial = storedName.charAt(0).toUpperCase();
-
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -44,31 +43,26 @@ export default function StudentAnalytics() {
         setLoading(false);
       }
     };
-
     fetchAnalytics();
   }, [token]);
 
   if (loading || !data) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950 text-white">
-        Loading Analytics...
+      <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center gap-4">
+           <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+           <p className="text-[var(--secondary)] font-bold animate-pulse uppercase tracking-widest text-xs">Gathering status...</p>
+        </div>
       </div>
     );
   }
 
-  const completionRate =
-    data.totalEnrolled === 0
-      ? 0
-      : Math.round(
-          (data.completedCourses / data.totalEnrolled) * 100
-        );
-
+  const completionRate = data.totalEnrolled === 0 ? 0 : Math.round((data.completedCourses / data.totalEnrolled) * 100);
   const pieData = [
     { name: "Pass", value: data.passCount },
     { name: "Fail", value: data.failCount },
   ];
-
-  const COLORS = ["#22c55e", "#ef4444"];
+  const COLORS = ["#10b981", "#ef4444"];
 
   const radialData = [
     {
@@ -79,241 +73,146 @@ export default function StudentAnalytics() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
-
-      {/* SIDEBAR */}
-      <div className="w-72 bg-slate-950 text-gray-300 p-6 border-r border-slate-800">
-        <h2 className="text-2xl font-bold text-white mb-10">
-          Learning Portal
-        </h2>
-
-        <ul className="space-y-2 text-sm">
-          <li onClick={() => navigate("/student-dashboard")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            Dashboard
-          </li>
-
-          <li onClick={() => navigate("/available-courses")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            Available Courses
-          </li>
-
-          <li onClick={() => navigate("/my-courses-student")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            My Courses
-          </li>
-
-          <li onClick={() => navigate("/completed-courses")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            Completed Courses
-          </li>
-
-          <li onClick={() => navigate("/quiz-attempts")} className="p-3 hover:bg-slate-800 cursor-pointer">
-            Quiz Attempts
-          </li>
-
-          <li className="p-3 rounded-lg bg-indigo-600 text-white font-semibold">
-            Analytics
-          </li>
-
-          <li onClick={handleLogout} className="p-3 mt-8 text-red-400 hover:bg-red-900/20 cursor-pointer">
-            Logout
-          </li>
-        </ul>
-      </div>
-
-      {/* MAIN */}
-      <div className="flex-1">
-
-        {/* TOP BAR */}
-        <div className="bg-slate-900/60 px-10 py-4 flex justify-between items-center relative">
-          <h1 className="text-xl font-semibold text-white">
-            Student Analytics
-          </h1>
-
-          <div className="relative">
-            <div
-              onClick={() => setOpenProfile(!openProfile)}
-              className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold cursor-pointer"
-            >
-              {initial}
-            </div>
-
-            {openProfile && (
-              <div className="absolute right-0 mt-2 bg-slate-800 border border-slate-700 rounded-lg w-48 shadow-lg text-white">
-                <div className="px-4 py-3 border-b border-slate-700 font-semibold">
-                  👤 {storedName}
-                </div>
-
-                <button
-                  onClick={() => navigate("/student-profile")}
-                  className="block w-full text-left px-4 py-2 hover:bg-slate-700"
-                >
-                  My Profile
-                </button>
-
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-red-400 hover:bg-slate-700"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
+    <div className="p-8 lg:p-12 space-y-12">
+      <div className="max-w-6xl mx-auto space-y-12">
+        
+        {/* HERO STATS */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <AnalyticsCard icon={<Award size={20}/>} label="Avg Score" value={`${data.averageScore}%`} sub="Performance" color="indigo" />
+          <AnalyticsCard icon={<CheckCircle size={20}/>} label="Completed" value={data.completedCourses} sub="Courses" color="emerald" />
+          <AnalyticsCard icon={<Target size={20}/>} label="Attempts" value={data.totalAttempts} sub="Quiz Power" color="violet" />
+          <AnalyticsCard icon={<TrendingUp size={20}/>} label="Success" value={data.passCount} sub="Quiz Passed" color="cyan" />
         </div>
 
-        {/* CONTENT */}
-        <div className="p-10 text-white space-y-10">
-
-          {/* STATS */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <StatCard title="Total Enrolled" value={data.totalEnrolled} />
-            <StatCard title="Completed Courses" value={data.completedCourses} />
-            <StatCard title="Average Score" value={`${data.averageScore}%`} />
-            <StatCard title="Total Attempts" value={data.totalAttempts} />
-          </div>
-
-          {/* CHARTS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
-              <h3 className="mb-4 font-semibold">Pass vs Fail</h3>
-              <ResponsiveContainer width="100%" height={250}>
+        {/* CHARTS SECTION */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="glass-card p-8 space-y-6">
+            <div className="flex items-center justify-between">
+               <h3 className="text-lg font-black uppercase tracking-tight">Quiz Results</h3>
+               <div className="flex gap-2">
+                  <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span className="text-[10px] font-bold text-[var(--secondary)]">Pass</span></div>
+                  <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span className="text-[10px] font-bold text-[var(--secondary)]">Fail</span></div>
+               </div>
+            </div>
+            <div className="h-64 relative">
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={pieData} innerRadius={60} outerRadius={90} dataKey="value">
+                  <Pie data={pieData} innerRadius={70} outerRadius={90} dataKey="value" stroke="none">
                     {pieData.map((entry, index) => (
                       <Cell key={index} fill={COLORS[index]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                 <span className="text-3xl font-black">{data.passCount + data.failCount}</span>
+                 <span className="text-[10px] font-bold text-[var(--secondary)] uppercase tracking-widest">Total</span>
+              </div>
             </div>
+          </div>
 
-            <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col items-center justify-center">
-              <h3 className="mb-4 font-semibold">Course Completion</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <RadialBarChart
-                  cx="50%"
-                  cy="50%"
-                  innerRadius="70%"
-                  outerRadius="100%"
-                  barSize={15}
-                  data={radialData}
-                >
-                  <RadialBar dataKey="value" />
+          <div className="glass-card p-8 flex flex-col items-center justify-center space-y-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+               <BarChart3 size={120} className="text-indigo-500" />
+            </div>
+            <h3 className="text-lg font-black uppercase tracking-tight w-full">Detailed Progress</h3>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="100%" barSize={15} data={radialData}>
+                  <RadialBar dataKey="value" cornerRadius={10} background={{ fill: 'var(--border)' }} />
                 </RadialBarChart>
               </ResponsiveContainer>
-              <p className="text-2xl font-bold mt-4">
-                {completionRate}%
-              </p>
+            </div>
+            <div className="text-center group cursor-default">
+              <p className="text-5xl font-black text-indigo-500 group-hover:scale-110 transition-transform">{completionRate}%</p>
+              <p className="text-xs font-bold text-[var(--secondary)] uppercase tracking-widest mt-2">Overall Progress</p>
             </div>
           </div>
-
-         
-          {/* COURSE PERFORMANCE */}
-<div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
-  <h3 className="mb-4 font-semibold text-lg">
-    Course Performance Overview
-  </h3>
-
-  {!data.coursePerformance || data.coursePerformance.length === 0 ? (
-    <p className="text-gray-400">No course data available.</p>
-  ) : (
-    <div className="space-y-4">
-      {data.coursePerformance.map((course) => (
-        <div
-          key={course.courseId}
-          className="bg-slate-900 p-5 rounded-lg border border-slate-700 flex justify-between items-center hover:bg-slate-800 transition"
-        >
-          {/* LEFT SIDE */}
-          <div>
-            <p className="font-bold text-white text-base">
-              {course.courseTitle}
-            </p>
-
-            <p className="text-sm text-gray-400 mt-1">
-              Attempts: {course.attempts} • Best: {course.bestScore}% • Avg: {course.averageScore}%
-            </p>
-
-            <p className="text-xs text-gray-500 mt-1">
-              Last Attempt:{" "}
-              {new Date(course.lastAttemptDate).toLocaleDateString()}
-            </p>
-          </div>
-
-          {/* STATUS */}
-          <div className="flex items-center gap-2">
-            {course.status === "Completed" ? (
-              <>
-                <span className="w-3 h-3 bg-green-400 rounded-full"></span>
-                <span className="text-green-400 font-semibold text-sm">
-                  Completed
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="w-3 h-3 bg-yellow-400 rounded-full"></span>
-                <span className="text-yellow-400 font-semibold text-sm">
-                  In Progress
-                </span>
-              </>
-            )}
-          </div>
         </div>
-      ))}
-    </div>
-  )}
-</div>
 
-          {/* RECENT ATTEMPTS */}
-          <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
-            <h3 className="mb-4 font-semibold">Recent Attempts</h3>
-
-            {data.recentAttempts.length === 0 ? (
-              <p className="text-gray-400">No attempts yet.</p>
-            ) : (
-              <table className="w-full text-sm">
-                <thead className="text-gray-400 border-b border-slate-700">
-                  <tr>
-                    <th className="py-2 text-left">Course</th>
-                    <th className="py-2 text-left">Score</th>
-                    <th className="py-2 text-left">Correct</th>
-                    <th className="py-2 text-left">Wrong</th>
-                    <th className="py-2 text-left">Status</th>
+        {/* PERFORMANCE TABLE */}
+        <div className="space-y-6">
+          <h3 className="text-2xl font-black tracking-tight uppercase">Course Progress Overview</h3>
+          <div className="glass-card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-[var(--card)]/50 border-b border-[var(--border)]">
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-[var(--secondary)]">Course Title</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-[var(--secondary)]">Peak Performance</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-[var(--secondary)]">Total Attempts</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-[var(--secondary)]">Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {data.recentAttempts.map((attempt) => (
-                    <tr key={attempt._id} className="border-b border-slate-700">
-                      <td className="py-2 font-semibold">
-                        {attempt.course?.title}
+                <tbody className="divide-y divide-[var(--border)]">
+                  {data.coursePerformance?.map((course) => (
+                    <tr key={course.courseId} className="hover:bg-[var(--card)]/30 transition-colors group">
+                      <td className="px-6 py-5">
+                         <div>
+                           <p className="font-black text-sm uppercase tracking-tight group-hover:text-indigo-500 transition-colors">{course.courseTitle}</p>
+                           <p className="text-[10px] font-bold text-[var(--secondary)] mt-1">Ref: {course.courseId.slice(-6)}</p>
+                         </div>
                       </td>
-                      <td className="py-2">{attempt.score}%</td>
-                      <td className="py-2">{attempt.correctCount}</td>
-                      <td className="py-2">{attempt.wrongCount}</td>
-                      <td className="py-2">
-                        {attempt.score >= 60 ? (
-                          <span className="text-green-400 font-semibold">Pass</span>
-                        ) : (
-                          <span className="text-red-400 font-semibold">Fail</span>
-                        )}
+                      <td className="px-6 py-5">
+                         <div className="flex items-center gap-2">
+                            <span className="text-lg font-black text-[var(--foreground)]">{course.bestScore}%</span>
+                            <div className="h-1.5 w-16 bg-[var(--border)] rounded-full overflow-hidden">
+                               <div className="h-full bg-indigo-500" style={{ width: `${course.bestScore}%` }}></div>
+                            </div>
+                         </div>
+                      </td>
+                      <td className="px-6 py-5">
+                         <span className="bg-indigo-500/10 text-indigo-500 px-2 py-1 rounded-lg text-[10px] font-black border border-indigo-500/20">{course.attempts} TRIES</span>
+                      </td>
+                      <td className="px-6 py-5 lowercase">
+                         {course.status === "Completed" ? (
+                           <div className="flex items-center gap-1.5 text-emerald-500">
+                              <CheckCircle size={14} />
+                              <span className="text-[10px] font-black uppercase tracking-widest leading-none">Finished</span>
+                           </div>
+                         ) : (
+                           <div className="flex items-center gap-1.5 text-amber-500">
+                              <Clock size={14} />
+                              <span className="text-[10px] font-black uppercase tracking-widest leading-none">Learning</span>
+                           </div>
+                         )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            )}
+            </div>
           </div>
-
         </div>
+
       </div>
     </div>
   );
 }
 
-function StatCard({ title, value }) {
+function AnalyticsCard({ icon, label, value, sub, color }) {
+  const colorMap = {
+    indigo: "text-indigo-500 bg-indigo-500/10",
+    emerald: "text-emerald-500 bg-emerald-500/10",
+    violet: "text-violet-500 bg-violet-500/10",
+    cyan: "text-cyan-500 bg-cyan-500/10"
+  };
+
   return (
-    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
-      <h4 className="text-gray-400 text-sm mb-2">{title}</h4>
-      <p className="text-2xl font-bold">{value}</p>
+    <div className="glass-card p-6 flex flex-col gap-4 group hover:-translate-y-1 transition-all">
+       <div className={`p-3 rounded-2xl w-fit group-hover:scale-110 transition-transform ${colorMap[color]}`}>
+          {icon}
+       </div>
+       <div>
+          <h4 className="text-[10px] font-black text-[var(--secondary)] uppercase tracking-widest mb-1">{label}</h4>
+          <div className="flex items-baseline gap-2">
+             <span className="text-3xl font-black text-[var(--foreground)]">{value}</span>
+             <span className="text-[10px] font-bold text-[var(--secondary)] italic">{sub}</span>
+          </div>
+       </div>
     </div>
   );
 }

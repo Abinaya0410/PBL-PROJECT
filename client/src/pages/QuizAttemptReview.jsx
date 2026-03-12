@@ -1,113 +1,23 @@
-// import { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import axios from "axios";
-
-// export default function QuizAttemptReview() {
-//   const { attemptId } = useParams();
-//   const navigate = useNavigate();
-//   const [attempt, setAttempt] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   const token = localStorage.getItem("token");
-
-//   useEffect(() => {
-//     const fetchAttempt = async () => {
-//       try {
-//         const res = await axios.get(
-//           `http://localhost:5000/api/quiz-attempt/${attemptId}`,
-//           {
-//             headers: {
-//               Authorization: `Bearer ${token}`,
-//             },
-//           }
-//         );
-
-//         setAttempt(res.data);
-//       } catch (err) {
-//         console.error(err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchAttempt();
-//   }, [attemptId, token]);
-
-//   if (loading || !attempt) {
-//     return (
-//       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-//         Loading attempt...
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white p-10">
-
-//       <button
-//         onClick={() => navigate(-1)}
-//         className="mb-6 px-6 py-2 bg-slate-700 rounded-lg"
-//       >
-//         ← Back
-//       </button>
-
-//       <h1 className="text-3xl font-bold mb-6 text-indigo-400">
-//         {attempt.course?.title}
-//       </h1>
-
-//       <div className="bg-slate-800 p-6 rounded-xl mb-8">
-//         <p><strong>Score:</strong> {attempt.score}%</p>
-//         <p><strong>Status:</strong> {attempt.score >= 60 ? "Pass" : "Fail"}</p>
-//         <p><strong>Start Time:</strong> {new Date(attempt.startTime).toLocaleString()}</p>
-//         <p><strong>End Time:</strong> {new Date(attempt.endTime).toLocaleString()}</p>
-//         <p><strong>Time Taken:</strong> {attempt.timeSpent} seconds</p>
-//       </div>
-
-//       <h2 className="text-2xl font-semibold mb-6">Review Questions</h2>
-
-//       {attempt.answers.map((q, index) => (
-//         <div key={index} className="bg-slate-800 p-6 rounded-xl mb-6">
-//           <h3 className="font-semibold mb-4">
-//             {index + 1}. {q.question}
-//           </h3>
-
-//           <div className="space-y-2">
-//             {q.options.map((opt, i) => {
-//               const isSelected = opt === q.selectedAnswer;
-//               const isCorrect = opt === q.correctAnswer;
-
-//               return (
-//                 <div
-//                   key={i}
-//                   className={`p-2 rounded ${
-//                     isCorrect
-//                       ? "bg-green-700"
-//                       : isSelected
-//                       ? "bg-red-700"
-//                       : "bg-slate-700"
-//                   }`}
-//                 >
-//                   {opt}
-//                 </div>
-//               );
-//             })}
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
-
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { 
+  Trophy, 
+  ArrowLeft, 
+  CheckCircle, 
+  XCircle, 
+  Clock, 
+  Calendar,
+  AlertCircle
+} from "lucide-react";
 
 export default function QuizAttemptReview() {
   const { attemptId } = useParams();
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -115,7 +25,7 @@ export default function QuizAttemptReview() {
     const fetchAttempt = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5001/api/quiz/quiz-attempt/${attemptId}`,
+          `http://localhost:5000/api/quiz-attempt/${attemptId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -125,7 +35,8 @@ export default function QuizAttemptReview() {
 
         setAttempt(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching attempt:", err);
+        setError("Failed to load attempt details.");
       } finally {
         setLoading(false);
       }
@@ -134,72 +45,136 @@ export default function QuizAttemptReview() {
     fetchAttempt();
   }, [attemptId, token]);
 
-  if (loading || !attempt) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        Loading attempt...
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+           <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+           <p className="text-[10px] font-black uppercase tracking-widest text-[var(--secondary)] animate-pulse">Loading Review...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !attempt) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-6">
+        <div className="glass-card p-10 text-center max-w-md w-full border-dashed border-2">
+           <AlertCircle className="mx-auto text-rose-500 mb-4" size={48} />
+           <h3 className="text-xl font-black uppercase tracking-tight mb-2">Review Unavailable</h3>
+           <p className="text-sm text-gray-500 italic mb-6">{error || "Attempt not found."}</p>
+           <button onClick={() => navigate("/quiz-attempts")} className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold">Return Back</button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white p-10">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-6 md:p-10 lg:p-16">
+      <div className="max-w-4xl mx-auto space-y-12">
+        
+        {/* HEADER */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-10 border-b border-[var(--border)]">
+          <div className="space-y-4">
+            <button 
+              onClick={() => navigate("/quiz-attempts")}
+              className="flex items-center gap-2 text-primary hover:translate-x-1 transition-all font-black uppercase tracking-widest text-[10px]"
+            >
+              <ArrowLeft size={16} />
+              Return to History
+            </button>
+            <div className="space-y-2">
+               <h1 className="text-4xl font-black tracking-tight leading-none uppercase">{attempt.course?.title || "Quiz Review"}</h1>
+               <p className="text-[var(--secondary)] font-bold italic opacity-80 text-sm">Detailed performance breakdown for this attempt.</p>
+            </div>
+          </div>
 
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-6 px-6 py-2 bg-slate-700 rounded-lg"
-      >
-        ← Back
-      </button>
+          <div className="flex items-center gap-6">
+             <div className="text-right">
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Final Score</p>
+                <p className={`text-4xl font-black ${attempt.score >= 60 ? 'text-emerald-500' : 'text-rose-500'}`}>{attempt.score}%</p>
+             </div>
+             <div className={`w-20 h-20 rounded-3xl ${attempt.score >= 60 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'} border flex items-center justify-center shadow-xl`}>
+                {attempt.score >= 60 ? <CheckCircle size={32} className="text-emerald-500" /> : <XCircle size={32} className="text-rose-500" />}
+             </div>
+          </div>
+        </header>
 
-      <h1 className="text-3xl font-bold mb-6 text-indigo-400">
-        {attempt.course?.title}
-      </h1>
+        {/* STATS GRID */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+           <StatBox icon={<Trophy size={18} className="text-amber-500"/>} label="Result" value={attempt.score >= 60 ? "Passed" : "Failed"} subtext="60% required to pass" />
+           <StatBox icon={<Clock size={18} className="text-indigo-500"/>} label="Duration" value={`${attempt.timeSpent}s`} subtext="Completion time" />
+           <StatBox icon={<Calendar size={18} className="text-emerald-500"/>} label="Date" value={new Date(attempt.createdAt).toLocaleDateString()} subtext={new Date(attempt.createdAt).toLocaleTimeString()} />
+        </section>
 
-      <div className="bg-slate-800 p-6 rounded-xl mb-8">
-        <p><strong>Score:</strong> {attempt.score}%</p>
-        <p><strong>Status:</strong> {attempt.score >= 60 ? "Pass" : "Fail"}</p>
-        <p><strong>Start Time:</strong> {new Date(attempt.startTime).toLocaleString()}</p>
-        <p><strong>End Time:</strong> {new Date(attempt.endTime).toLocaleString()}</p>
-        <p><strong>Time Taken:</strong> {attempt.timeSpent} seconds</p>
-      </div>
+<section className="space-y-8">
+  <h3 className="text-2xl font-black uppercase tracking-tight">Question Breakdown</h3>
+  <div className="space-y-6">
+    {attempt.answers.map((q, index) => (
+      <div key={index} className="glass-card p-8 space-y-6 border-l-4 transition-all hover:translate-x-1" style={{ borderLeftColor: q.isCorrect ? '#10b981' : '#f43f5e' }}>
+         <div className="flex justify-between items-start gap-4">
+            <h4 className="font-black text-lg leading-tight uppercase tracking-tight">
+              {index + 1}. {q.question || "Real Question from Database"}
+            </h4>
+            {q.isCorrect ? (
+              <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-500/20 shrink-0">Correct</span>
+            ) : (
+              <span className="px-3 py-1 bg-rose-500/10 text-rose-500 rounded-full text-[9px] font-black uppercase tracking-widest border border-rose-500/20 shrink-0">Incorrect</span>
+            )}
+         </div>
 
-      <h2 className="text-2xl font-semibold mb-6">Review Questions</h2>
-
-      {attempt.answers.map((q, index) => (
-        <div key={index} className="bg-slate-800 p-6 rounded-xl mb-6">
-          <h3 className="font-semibold mb-4">
-            {index + 1}. {q.question}
-          </h3>
-
-          <div className="space-y-2">
-            {q.options.map((opt, i) => {
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {q.options && q.options.map((opt, i) => {
               const isSelected = opt === q.selectedAnswer;
-
-              let style = "bg-slate-700";
-
-              if (q.isCorrect && isSelected) {
-                style = "bg-green-700";
-              } 
-              else if (!q.isCorrect && isSelected) {
-                style = "bg-red-700";
-              } 
-              else if (!q.isCorrect && opt === q.correctAnswer) {
-                style = "bg-green-700/60";
-              }
+              const isCorrectAnswer = opt === q.correctAnswer;
+              
+              let stateStyle = "border-[var(--border)] text-gray-400";
+              if (isSelected && q.isCorrect) stateStyle = "border-emerald-500 bg-emerald-500/5 text-emerald-500";
+              if (isSelected && !q.isCorrect) stateStyle = "border-rose-500 bg-rose-500/5 text-rose-500";
+              if (!isSelected && isCorrectAnswer && !q.isCorrect) stateStyle = "border-emerald-500/30 bg-emerald-500/5 text-emerald-500/60";
 
               return (
-                <div
-                  key={i}
-                  className={`p-2 rounded ${style}`}
-                >
-                  {opt}
+                <div key={i} className={`p-4 rounded-2xl border text-sm font-bold flex items-center justify-between transition-all ${stateStyle}`}>
+                   <span>{opt}</span>
+                   {isSelected && (q.isCorrect ? <CheckCircle size={14} /> : <XCircle size={14} />)}
                 </div>
               );
             })}
+         </div>
+
+         <div className="pt-6 border-t border-[var(--border)] flex flex-wrap gap-6">
+            <div className="space-y-1">
+               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Your Selection</p>
+               <p className={`text-sm font-bold ${q.isCorrect ? 'text-emerald-500' : 'text-rose-500'}`}>{q.selectedAnswer || "No Answer"}</p>
+            </div>
+            <div className="space-y-1">
+               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Correct Solution</p>
+               <p className="text-sm font-bold text-emerald-500">{q.correctAnswer}</p>
+            </div>
+         </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+      </div>
+    </div>
+  );
+}
+
+function StatBox({ icon, label, value, subtext }) {
+  return (
+    <div className="glass-card p-6 flex flex-col gap-4">
+       <div className="flex items-center gap-3">
+          <div className="p-2 bg-[var(--background)] rounded-xl border border-[var(--border)] shadow-inner">
+             {icon}
           </div>
-        </div>
-      ))}
+          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</span>
+       </div>
+       <div>
+          <p className="text-2xl font-black">{value}</p>
+          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 opacity-70">{subtext}</p>
+       </div>
     </div>
   );
 }

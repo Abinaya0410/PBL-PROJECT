@@ -17,6 +17,9 @@ const questionBankRoutes = require("./routes/questionBankRoutes");
 const moduleQuestionRoutes = require("./routes/moduleQuestionRoutes");
 const quizRoutes = require("./routes/quizRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const xpRoutes = require("./routes/xpRoutes");
+// const assignmentRoutes = require("./routes/assignmentRoutes");
 // =====================
 // Middleware
 // =====================
@@ -53,7 +56,9 @@ app.use("/api", moduleQuestionRoutes);
 app.use("/api", quizRoutes);
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/analytics", analyticsRoutes);
-
+app.use("/api/assignments", assignmentRoutes);
+app.use("/api/xp", xpRoutes);
+app.use("/uploads", express.static("uploads"));
 // =====================
 // Test Routes
 // =====================

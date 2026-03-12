@@ -1,216 +1,20 @@
 
-
-// import { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-
-// export default function AvailableCourses() {
-//   const navigate = useNavigate();
-
-//   const [availableCourses, setAvailableCourses] = useState([]);
-//   const [selectedCourse, setSelectedCourse] = useState(null);
-
-//   // FETCH COURSES FROM BACKEND
-//   useEffect(() => {
-//     const fetchCourses = async () => {
-//       try {
-//         const token = localStorage.getItem("token");
-
-//         const res = await fetch("http://localhost:5000/api/courses", {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         });
-
-//         const data = await res.json();
-//         setAvailableCourses(data);
-//       } catch (err) {
-//         console.log(err);
-//       }
-//     };
-
-//     fetchCourses();
-//   }, []);
-
-//   // ENROLL COURSE (API)
-//   const confirmEnroll = async () => {
-//     try {
-//       const token = localStorage.getItem("token");
-
-//       await fetch(
-//         `http://localhost:5000/api/courses/enroll/${selectedCourse._id}`,
-//         {
-//           method: "POST",
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         }
-//       );
-
-//       // Remove from UI after enrolling
-//       setAvailableCourses(
-//         availableCourses.filter((c) => c._id !== selectedCourse._id)
-//       );
-
-//       setSelectedCourse(null);
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   };
-
-//   const cancelEnroll = () => {
-//     setSelectedCourse(null);
-//   };
-
-//   const handleLogout = () => {
-//     localStorage.clear();
-//     navigate("/login");
-//   };
-
-//   return (
-//     <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
-//       {/* SIDEBAR */}
-//       <div className="w-72 bg-slate-950 text-gray-300 p-6 border-r border-slate-800">
-//         <h2 className="text-2xl font-bold text-white mb-10">
-//           Learning Portal
-//         </h2>
-
-//         <ul className="space-y-2 text-sm">
-//           <li
-//             onClick={() => navigate("/student-dashboard")}
-//             className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-//           >
-//             Dashboard
-//           </li>
-
-//           <li className="p-3 rounded-lg bg-indigo-600 text-white font-semibold">
-//             Available Courses
-//           </li>
-
-//           <li
-//             onClick={() => navigate("/my-courses-student")}
-//             className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-//           >
-//             My Courses
-//           </li>
-
-//           <li
-//             onClick={() => navigate("/completed-courses")}
-//             className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-//           >
-//             Completed Courses
-//           </li>
-
-//           <li
-//             onClick={() => navigate("/quiz-attempts")}
-//             className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-//           >
-//             Quiz Attempts
-//           </li>
-
-//           <li
-//             onClick={handleLogout}
-//             className="p-3 mt-8 text-red-400 hover:bg-red-900/20 cursor-pointer rounded-lg"
-//           >
-//             Logout
-//           </li>
-//         </ul>
-//       </div>
-
-//       {/* MAIN AREA */}
-//       <div className="flex-1">
-//         {/* TOP BAR */}
-//         <div className="bg-slate-900/60 backdrop-blur-md px-10 py-4 border-b border-slate-800 flex justify-between items-center">
-//           <h1 className="text-xl font-semibold text-white">
-//             Available Courses
-//           </h1>
-
-//           <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
-//             S
-//           </div>
-//         </div>
-
-//         {/* CONTENT */}
-//         <div className="p-10 text-white">
-//           <h2 className="text-2xl font-semibold mb-6 text-indigo-300">
-//             Courses You Can Enroll In
-//           </h2>
-
-//           {availableCourses.length === 0 ? (
-//             <p className="text-gray-400">No new courses available.</p>
-//           ) : (
-//             <div className="grid grid-cols-3 gap-6">
-//               {availableCourses.map((course) => (
-//                 <div
-//                   key={course._id}
-//                   className="bg-slate-800 p-6 rounded-xl border border-indigo-500/30"
-//                 >
-//                   <h3 className="text-xl font-semibold mb-2 text-indigo-300">
-//                     {course.title}
-//                   </h3>
-
-//                   <p className="text-gray-400 text-sm mb-4">
-//                     {course.description}
-//                   </p>
-
-//                   <button
-//                     onClick={() => setSelectedCourse(course)}
-//                     className="px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500"
-//                   >
-//                     Enroll
-//                   </button>
-//                 </div>
-//               ))}
-//             </div>
-//           )}
-//         </div>
-
-//         {/* CONFIRM MODAL */}
-//         {selectedCourse && (
-//           <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
-//             <div className="bg-slate-900 p-8 rounded-xl border border-indigo-500/30 w-[420px] text-center">
-//               <h2 className="text-xl font-semibold mb-4 text-white">
-//                 Enroll in {selectedCourse.title}?
-//               </h2>
-
-//               <p className="text-gray-400 mb-6">
-//                 After enrolling, this course will appear in your My Courses
-//                 section.
-//               </p>
-
-//               <div className="flex justify-center gap-4">
-//                 <button
-//                   onClick={confirmEnroll}
-//                   className="px-5 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500"
-//                 >
-//                   Yes, Enroll
-//                 </button>
-
-//                 <button
-//                   onClick={cancelEnroll}
-//                   className="px-5 py-2 bg-slate-700 rounded-lg hover:bg-slate-600"
-//                 >
-//                   Cancel
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
+import { Search, Filter, BookOpen, User, ArrowRight } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function AvailableCourses() {
   const navigate = useNavigate();
+  const { isDark } = useTheme();
 
   const [availableCourses, setAvailableCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const storedName = localStorage.getItem("name") || "Student";
+  const initial = storedName.charAt(0).toUpperCase();
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -257,153 +61,71 @@ export default function AvailableCourses() {
     }
   };
 
-  const cancelEnroll = () => {
-    setSelectedCourse(null);
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
+  const filteredCourses = availableCourses.filter(course => 
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    course.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
+    <div className="p-8 lg:p-12 space-y-8">
+      
+      <div className="max-w-6xl mx-auto space-y-10">
+            <div>
+              <h2 className="text-3xl font-black tracking-tight mb-2">Available Opportunities</h2>
+              <p className="text-[var(--secondary)] font-medium">Expand your knowledge with our premium curated courses.</p>
+            </div>
 
-      {/* SIDEBAR */}
-      <div className="w-72 bg-slate-950 text-gray-300 p-6 border-r border-slate-800">
-        <h2 className="text-2xl font-bold text-white mb-10">
-          Learning Portal
-        </h2>
-
-        <ul className="space-y-2 text-sm">
-          <li
-            onClick={() => navigate("/student-dashboard")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Dashboard
-          </li>
-
-          <li className="p-3 rounded-lg bg-indigo-600 text-white font-semibold">
-            Available Courses
-          </li>
-
-          <li
-            onClick={() => navigate("/my-courses-student")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            My Courses
-          </li>
-
-          <li
-            onClick={() => navigate("/completed-courses")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Completed Courses
-          </li>
-
-          <li
-            onClick={() => navigate("/quiz-attempts")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Quiz Attempts
-          </li>
-
-          {/* ✅ Added Analytics */}
-          <li
-            onClick={() => navigate("/student-analytics")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Analytics
-          </li>
-
-          <li
-            onClick={handleLogout}
-            className="p-3 mt-8 text-red-400 hover:bg-red-900/20 cursor-pointer rounded-lg"
-          >
-            Logout
-          </li>
-        </ul>
-      </div>
-
-      {/* MAIN AREA */}
-      <div className="flex-1">
-
-        {/* TOP BAR */}
-        <div className="bg-slate-900/60 backdrop-blur-md px-10 py-4 border-b border-slate-800 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-white">
-            Available Courses
-          </h1>
-
-          <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
-            S
-          </div>
-        </div>
-
-        {/* CONTENT */}
-        <div className="p-10 text-white">
-          <h2 className="text-2xl font-semibold mb-6 text-indigo-300">
-            Courses You Can Enroll In
-          </h2>
-
-          {availableCourses.length === 0 ? (
-            <p className="text-gray-400">No new courses available.</p>
-          ) : (
-            <div className="grid grid-cols-3 gap-6">
-              {availableCourses.map((course) => (
-                <div
-                  key={course._id}
-                  className="bg-slate-800 p-6 rounded-xl border border-indigo-500/30"
-                >
-                  <h3 className="text-xl font-semibold mb-2 text-indigo-300">
-                    {course.title}
-                  </h3>
-
-                  <p className="text-gray-400 text-sm mb-4">
-                    {course.description}
-                  </p>
-
-                  <button
-                    onClick={() => setSelectedCourse(course)}
-                    className="px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500"
-                  >
-                    Enroll
-                  </button>
+            {filteredCourses.length === 0 ? (
+              <div className="glass-card p-16 text-center">
+                <div className="inline-flex p-4 bg-indigo-500/10 rounded-3xl mb-6">
+                  <BookOpen size={48} className="text-indigo-500" />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* CONFIRM MODAL */}
-        {selectedCourse && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
-            <div className="bg-slate-900 p-8 rounded-xl border border-indigo-500/30 w-[420px] text-center">
-              <h2 className="text-xl font-semibold mb-4 text-white">
-                Enroll in {selectedCourse.title}?
-              </h2>
-
-              <p className="text-gray-400 mb-6">
-                After enrolling, this course will appear in your My Courses section.
-              </p>
-
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={confirmEnroll}
-                  className="px-5 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500"
-                >
-                  Yes, Enroll
-                </button>
-
-                <button
-                  onClick={cancelEnroll}
-                  className="px-5 py-2 bg-slate-700 rounded-lg hover:bg-slate-600"
-                >
-                  Cancel
-                </button>
+                <h3 className="text-xl font-bold mb-2">No Courses Found</h3>
+                <p className="text-[var(--secondary)]">We couldn't find any courses matching your search criteria.</p>
               </div>
-            </div>
-          </div>
-        )}
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredCourses.map((course) => (
+                  <div key={course._id} className="glass-card overflow-hidden group hover:-translate-y-2 hover:shadow-2xl transition-all duration-500">
+                    <div className="h-40 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center relative overflow-hidden">
+                       <div className="absolute inset-0 bg-grid-white/5 mask-image-linear-gradient"></div>
+                       <BookOpen size={40} className="text-indigo-500 group-hover:scale-110 transition-transform duration-500" />
+                    </div>
+                    
+                    <div className="p-6 space-y-4">
+                      <div className="flex justify-between items-start">
+                        <span className="bg-indigo-500/10 text-indigo-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-500/20">
+                          {course.category || 'Professional'}
+                        </span>
+                      </div>
+
+                      <h3 className="text-xl font-black group-hover:text-indigo-500 transition-colors uppercase tracking-tight leading-tight">
+                        {course.title}
+                      </h3>
+
+                      <p className="text-sm text-[var(--secondary)] line-clamp-2 leading-relaxed h-10 font-medium italic">
+                        {course.description}
+                      </p>
+
+                      <div className="pt-4 flex items-center justify-between border-t border-[var(--border)]">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                             <User size={14} className="text-slate-500" />
+                          </div>
+                          <span className="text-xs font-bold text-[var(--secondary)]">{course.teacher?.name || 'Top Instructor'}</span>
+                        </div>
+                        <button
+                          onClick={() => setSelectedCourse(course)}
+                          className="p-2 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors shadow-lg shadow-indigo-500/20"
+                        >
+                          <ArrowRight size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
       </div>
     </div>
   );

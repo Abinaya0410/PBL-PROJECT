@@ -26,47 +26,65 @@ import StudentProfile from "./pages/StudentProfile";
 import EditQuestion from "./pages/EditQuestion";
 import StudentAnalytics from "./pages/StudentAnalytics";
 import QuizAttemptReview from "./pages/QuizAttemptReview";
+import AddAssignment from "./pages/AddAssignment";
+import EditAssignment from "./pages/EditAssignment";
+import AssignmentSubmissions from "./pages/AssignmentSubmissions";
+import StudentAssignments from "./pages/StudentAssignments";
+import CompletedCourseReview from "./pages/CompletedCourseReview";
+import LearnerXP from "./pages/Student/LearnerXP";
+import { ThemeProvider } from "./context/ThemeContext";
+import StudentLayout from "./layouts/StudentLayout";
+import ThemeToggle from "./components/ThemeToggle";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/teacher" element={<TeacherDashboard />} />
-        <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/student-onboarding" element={<StudentOnboarding />} />
-        <Route path="/teacher-onboarding" element={<TeacherOnboarding />} />
-        <Route path="/create-course" element={<CreateCourse />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/my-courses" element={<MyCourses />} />
-        <Route path="/course/:id" element={<CourseBuilder />} />
-        <Route path="/add-lesson/:id" element={<AddLesson />} />
-        <Route path="/edit-lesson/:lessonId" element={<EditLesson />} />
-        <Route path="/quiz-attempt/:attemptId" element={<QuizAttemptReview />} />
-        <Route path="/lesson-details/:lessonId" element={<LessonDetails />} />
-         <Route path="/upload-questions/:lessonId" element={<UploadQuestions />} />
-           <Route path="/create-quiz/:courseId" element={<CreateQuiz />} />
-{/* <Route path="/create-quiz/:courseId" element={<CreateQuiz />} /> */}
-<Route path="/student-dashboard" element={<StudentDashboard />} />
-<Route path="/student-courses" element={<StudentCourses />} />
-<Route path="/student-course/:id" element={<StudentCourseView />} />
-<Route path="/available-courses" element={<AvailableCourses />} />
-<Route path="/my-courses-student" element={<MyCoursesStudent />} />
-{/* <Route path="/student-lesson/:id" element={<StudentLessonView />} /> */}
-<Route path="/student-lesson/:lessonId" element={<LessonDetails />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        <ThemeToggle />
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/teacher" element={<TeacherDashboard />} />
+          <Route path="/student" element={<StudentDashboard />} />
+          <Route path="/student-onboarding" element={<StudentOnboarding />} />
+          <Route path="/teacher-onboarding" element={<TeacherOnboarding />} />
+          <Route path="/create-course" element={<CreateCourse />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/my-courses" element={<MyCourses />} />
+          <Route path="/course/:id" element={<CourseBuilder />} />
+          <Route path="/add-lesson/:id" element={<AddLesson />} />
+          <Route path="/edit-lesson/:lessonId" element={<EditLesson />} />
+          <Route path="/quiz-attempt/:attemptId" element={<QuizAttemptReview />} />
+          <Route path="/lesson-details/:lessonId" element={<LessonDetails />} />
+          <Route path="/upload-questions/:lessonId" element={<UploadQuestions />} />
+          <Route path="/create-quiz/:courseId" element={<CreateQuiz />} />
+          
+          {/* STUDENT PORTAL LAYOUT */}
+          <Route element={<StudentLayout />}>
+            <Route path="/student-dashboard" element={<StudentDashboard />} />
+            <Route path="/student-courses" element={<StudentCourses />} />
+            <Route path="/available-courses" element={<AvailableCourses />} />
+            <Route path="/my-courses-student" element={<MyCoursesStudent />} />
+            <Route path="/completed-courses" element={<CompletedCourses />} />
+            <Route path="/quiz-attempts" element={<QuizAttempts />} />
+            <Route path="/learner-xp" element={<LearnerXP />} />
+            <Route path="/student-profile" element={<StudentProfile />} />
+            <Route path="/student-analytics" element={<StudentAnalytics />} />
+          </Route>
 
-<Route path="/attempt-quiz/:courseId" element={<AttemptQuiz />} />
-<Route path="/quiz-instructions/:courseId" element={<QuizInstructions />} />
-<Route path="/completed-courses" element={<CompletedCourses />} />
-<Route path="/quiz-attempts" element={<QuizAttempts />} />
-<Route path="/student-profile" element={<StudentProfile />} />
-<Route path="/edit-question/:questionId" element={<EditQuestion />} />
-<Route path="/student-analytics" element={<StudentAnalytics />} />
-
-
-      </Routes>
-    </BrowserRouter>
+          <Route path="/student-course/:id" element={<StudentCourseView />} />
+          <Route path="/student-lesson/:lessonId" element={<LessonDetails />} />
+          <Route path="/attempt-quiz/:courseId" element={<AttemptQuiz />} />
+          <Route path="/quiz-instructions/:courseId" element={<QuizInstructions />} />
+          <Route path="/edit-question/:questionId" element={<EditQuestion />} />
+          <Route path="/add-assignment/:id" element={<AddAssignment />} />
+          <Route path="/edit-assignment/:id" element={<EditAssignment/>}/>
+          <Route path="/assignment-submissions/:id" element={<AssignmentSubmissions/>}/>
+          <Route path="/student-assignments/:courseId" element={<StudentAssignments/>}/>
+          <Route path="/completed-course/:courseId" element={<CompletedCourseReview />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

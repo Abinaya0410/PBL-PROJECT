@@ -84,6 +84,12 @@ const userSchema = new mongoose.Schema(
     country: String,
     state: String,
     city: String,
+    
+    // 🏆 POINTS SYSTEM
+    points: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

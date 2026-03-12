@@ -1,11 +1,20 @@
 
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { 
+  BookOpen, 
+  ArrowUpRight, 
+  Clock, 
+  GraduationCap 
+} from "lucide-react";
 
 export default function MyCoursesStudent() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const storedName = localStorage.getItem("name") || "Student";
 
   useEffect(() => {
     fetchCourses();
@@ -14,153 +23,99 @@ export default function MyCoursesStudent() {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token");
-
-      const enrolledRes = await fetch(
-        "http://localhost:5000/api/courses/my",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const enrolledData = await enrolledRes.json();
-
-      const completedRes = await fetch(
-        "http://localhost:5000/api/course-progress/completed",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const completedData = await completedRes.json();
-
-      const completedIds = completedData.map(
-        (item) => item.course._id
-      );
-
-      const activeCourses = enrolledData.filter(
-        (course) => !completedIds.includes(course._id)
-      );
-
-      setCourses(activeCourses);
-
+      const res = await fetch("http://localhost:5000/api/courses/my", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setCourses(data);
+      }
     } catch (err) {
-      console.log(err);
+      console.error("Error fetching courses:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
+  const filteredCourses = courses.filter(c => 
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
+    <div className="p-8 lg:p-12 space-y-10">
+      <div className="max-w-6xl mx-auto space-y-10">
+        <div className="space-y-4">
+          <h2 className="text-3xl font-black uppercase tracking-tight leading-none">Your Active Learning</h2>
+          <p className="text-[var(--secondary)] font-bold italic opacity-80">Track your progress and continue your educational journey.</p>
+        </div>
 
-      {/* SIDEBAR */}
-      <div className="w-72 bg-slate-950 text-gray-300 p-6 border-r border-slate-800">
-        <h2 className="text-2xl font-bold text-white mb-10">
-          Learning Portal
-        </h2>
-
-        <ul className="space-y-2 text-sm">
-          <li
-            onClick={() => navigate("/student-dashboard")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Dashboard
-          </li>
-
-          <li
-            onClick={() => navigate("/available-courses")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Available Courses
-          </li>
-
-          <li className="p-3 rounded-lg bg-purple-600 text-white font-semibold">
-            My Courses
-          </li>
-
-          <li
-            onClick={() => navigate("/completed-courses")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Completed Courses
-          </li>
-
-          <li
-            onClick={() => navigate("/quiz-attempts")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Quiz Attempts
-          </li>
-
-          {/* ✅ Added Analytics */}
-          <li
-            onClick={() => navigate("/student-analytics")}
-            className="p-3 rounded-lg hover:bg-slate-800 cursor-pointer"
-          >
-            Analytics
-          </li>
-
-          <li
-            onClick={handleLogout}
-            className="p-3 mt-8 text-red-400 hover:bg-red-900/20 cursor-pointer rounded-lg"
-          >
-            Logout
-          </li>
-        </ul>
-      </div>
-
-      {/* MAIN AREA */}
-      <div className="flex-1">
-        <div className="bg-slate-900/60 backdrop-blur-md px-10 py-4 border-b border-slate-800 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-white">
-            My Courses
-          </h1>
-
-          <div className="w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
-            S
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+             <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+             <p className="text-[10px] font-black uppercase tracking-widest text-[var(--secondary)]">Syncing with HQ...</p>
           </div>
-        </div>
-
-        <div className="p-10 text-white">
-          <h2 className="text-2xl font-semibold mb-6 text-purple-300">
-            Courses You Are Enrolled In
-          </h2>
-
-          {courses.length === 0 ? (
-            <p className="text-gray-400">
-              No active courses. All completed ✔
-            </p>
-          ) : (
-            <div className="grid grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <div
-                  key={course._id}
-                  className="bg-slate-800 p-6 rounded-xl border border-purple-500/30"
-                >
-                  <h3 className="text-xl font-semibold text-purple-300">
-                    {course.title}
-                  </h3>
-
-                  <p className="text-gray-400 text-sm mt-2">
-                    {course.description}
-                  </p>
-
-                  <button
-                    onClick={() =>
-                      navigate(`/student-course/${course._id}`)
-                    }
-                    className="mt-4 px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-500"
-                  >
-                    Open Course
-                  </button>
-                </div>
-              ))}
+        ) : filteredCourses.length === 0 ? (
+          <div className="glass-card p-20 text-center border-dashed border-2 flex flex-col items-center gap-6">
+            <div className="w-20 h-20 bg-indigo-500/10 text-indigo-500 rounded-3xl flex items-center justify-center shadow-inner">
+               <BookOpen size={40} />
             </div>
-          )}
-        </div>
+            <div>
+               <h3 className="text-2xl font-black uppercase tracking-tight mb-2">No Active Courses</h3>
+               <p className="text-sm text-gray-500 italic max-w-sm">
+                 {courses.length > 0 
+                   ? "Everything is complete! Check your certificates in the Completed section." 
+                   : "You haven't enrolled in any courses yet. Visit the Explore page to get started."}
+               </p>
+            </div>
+            <button 
+              onClick={() => navigate("/available-courses")}
+              className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl shadow-indigo-500/20 hover:bg-indigo-500 transition-all font-black uppercase tracking-widest text-[10px]"
+            >
+              Explore Courses
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredCourses.map((course) => (
+              <div 
+                key={course._id}
+                onClick={() => navigate(`/student-course/${course._id}`)}
+                className="glass-card p-8 group cursor-pointer hover:border-indigo-500 transition-all hover:-translate-y-2 flex flex-col h-full"
+              >
+                <div className="flex justify-between items-start mb-6">
+                   <div className="w-12 h-12 bg-indigo-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                      <GraduationCap size={24} />
+                   </div>
+                   <div className="text-right">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Progress</p>
+                      <p className="text-xl font-black text-indigo-500">{course.progress || 0}%</p>
+                   </div>
+                </div>
+
+                <div className="flex-1 space-y-3 mb-8">
+                   <h3 className="text-xl font-black uppercase tracking-tight group-hover:text-indigo-500 transition-colors leading-tight">{course.title}</h3>
+                   <p className="text-xs text-gray-500 font-bold italic line-clamp-2 leading-relaxed opacity-80">{course.description}</p>
+                </div>
+
+                <div className="space-y-6 pt-6 border-t border-[var(--border)]">
+                   <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-400">
+                      <span className="flex items-center gap-1.5"><Clock size={12}/> ACTIVE</span>
+                      <span className="text-indigo-500">{course.progress || 0}%</span>
+                   </div>
+                   <div className="h-2 w-full bg-[var(--background)] border border-[var(--border)] rounded-full overflow-hidden p-0.5">
+                      <div 
+                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${course.progress || 0}%` }}
+                      ></div>
+                   </div>
+                   <button className="w-full py-4 bg-[var(--foreground)] text-[var(--background)] rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl group-hover:bg-indigo-600 group-hover:text-white transition-all transform group-active:scale-95 flex items-center justify-center gap-2">
+                      Resume Course <ArrowUpRight size={14} />
+                   </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,7 @@
 const LessonProgress = require("../models/LessonProgress");
+const User = require("../models/User");
+const Lesson = require("../models/Lesson");
+const { evaluateCourseCompletion } = require("../services/completionHelper");
 
 // =======================
 // MARK LESSON COMPLETED
@@ -17,8 +20,19 @@ const completeLesson = async (req, res) => {
       { upsert: true, new: true }
     );
 
+    // 🏆 Award Points (+10 per lesson)
+    await User.findByIdAndUpdate(studentId, {
+      $inc: { points: 10 }
+    });
+
+    // 🔄 Sync Course Completion
+    const lesson = await Lesson.findById(lessonId);
+    if (lesson) {
+      await evaluateCourseCompletion(studentId, lesson.course);
+    }
+
     res.json({
-      message: "Lesson marked as completed",
+      message: "Lesson marked as completed (+10 points)",
       progress,
     });
   } catch (error) {

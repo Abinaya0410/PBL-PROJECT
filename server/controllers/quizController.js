@@ -3,6 +3,7 @@ const QuestionBank = require("../models/QuestionBank");
 const ModuleQuestion = require("../models/ModuleQuestion");
 const LessonProgress = require("../models/LessonProgress");
 const QuizAttempt = require("../models/QuizAttempt");
+const User = require("../models/User");
 
 // Shuffle function
 const shuffleArray = (array) => {
@@ -65,6 +66,11 @@ const startQuiz = async (req, res) => {
 
     let allQuestions = [...qbQuestions, ...moduleQuestions];
     allQuestions = shuffleArray(allQuestions);
+
+    // 🏆 Award Points (+10 per attempt start)
+    await User.findByIdAndUpdate(studentId, {
+      $inc: { points: 10 }
+    });
 
     res.json({
       attemptId: attempt._id,
@@ -203,8 +209,20 @@ const submitQuiz = async (req, res) => {
 
     await attempt.save();
 
+    // 🏆 Award Points (Tiered based on score out of 20)
+    // Percentage: (score/20) * 100
+    const percentage = (score / 20) * 100;
+    let pointsToAward = 10;
+    if (percentage >= 90) pointsToAward = 50;
+    else if (percentage >= 70) pointsToAward = 40;
+    else if (percentage >= 50) pointsToAward = 25;
+
+    await User.findByIdAndUpdate(studentId, {
+      $inc: { points: pointsToAward }
+    });
+
     res.json({
-      message: "Quiz submitted successfully",
+      message: `Quiz submitted successfully (+${pointsToAward} points)`,
       score,
       correctCount,
       wrongCount,

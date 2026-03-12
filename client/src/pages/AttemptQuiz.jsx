@@ -295,6 +295,7 @@ export default function AttemptQuiz() {
       if (isCorrect) correctCount++;
 
       return {
+        questionId: q._id, // ✅ Add questionId
         question: q.question,
         options: q.options,
         selectedAnswer: selected,
