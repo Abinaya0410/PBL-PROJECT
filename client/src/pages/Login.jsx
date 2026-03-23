@@ -1,40 +1,36 @@
 
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
+import { GraduationCap, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import AuthBrandingCard from "../components/AuthBrandingCard";
 
 export default function Login() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
       const data = await loginUser({ email, password });
 
-      // Store token
+      // Store tokens and basic info
       localStorage.setItem("token", data.token);
-
-      // Store role
       localStorage.setItem("role", data.user.role);
-
-      // Store email
       localStorage.setItem("email", data.user.email);
-
-      // ⭐⭐⭐ MOST IMPORTANT LINE (YOU MISSED THIS)
       localStorage.setItem("name", data.user.name);
 
-      // Redirect based on profile completion
+      // Task 2: Exact same flow logic
       if (!data.user.profileCompleted) {
-        if (data.user.role === "teacher") {
-          navigate("/teacher-onboarding");
-        } else {
-          navigate("/student-onboarding");
-        }
+        navigate("/complete-profile");
       } else {
         if (data.user.role === "teacher") {
           navigate("/teacher");
@@ -43,50 +39,103 @@ export default function Login() {
         }
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      setError(err.response?.data?.message || "Login failed. Please check your credentials.");
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Virtual Academic Intelligence Hub
-        </h2>
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
+      <AuthBrandingCard />
 
-        <form className="space-y-4" onSubmit={handleLogin}>
-          <div>
-            <label className="text-sm">Email</label>
-            <input
-              type="email"
-              className="w-full border p-2 rounded mt-1"
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+      {/* RIGHT SIDE - FORM */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-20">
+        <div className="w-full max-w-xl">
+          <div className="text-center lg:text-left mb-10">
+            <div className="lg:hidden flex justify-center mb-6">
+               <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                  <GraduationCap size={28} />
+               </div>
+            </div>
+            <h1 className="text-sm font-black text-emerald-600 tracking-widest uppercase mb-1">Virtual Academic Portal</h1>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2 uppercase">Welcome Back</h2>
+            <p className="text-slate-500 font-medium">Continue your journey in academic excellence.</p>
           </div>
 
-          <div>
-            <label className="text-sm">Password</label>
-            <input
-              type="password"
-              className="w-full border p-2 rounded mt-1"
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          {error && (
+            <div className="mb-8 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-sm font-bold flex items-center gap-3 animate-shake">
+              <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+              {error}
+            </div>
+          )}
 
-          <button className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
-            Login
-          </button>
-        </form>
+          <form className="space-y-6" onSubmit={handleLogin}>
+            {/* EMAIL */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Email Address</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                  <Mail size={18} />
+                </div>
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  autoComplete="email"
+                  className="w-full bg-white border border-slate-200 pl-12 pr-4 py-4 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all font-medium text-slate-900"
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
 
-        <p className="text-sm mt-4 text-center">
-          Don’t have an account?{" "}
-          <Link to="/register" className="text-blue-600 font-semibold">
-            Register
-          </Link>
-        </p>
+            {/* PASSWORD */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center ml-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Password</label>
+                <Link to="/forgot-password-dummy" className="text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:underline">Forgot Password?</Link>
+              </div>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                  <Lock size={18} />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  className="w-full bg-white border border-slate-200 pl-12 pr-12 py-4 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all font-medium text-slate-900"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              disabled={loading}
+              className={`w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 relative overflow-hidden group ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+            >
+              <span className="relative z-10">{loading ? "Signing In..." : "Sign In"}</span>
+              {!loading && <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />}
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-indigo-600 opacity-0 group-hover:opacity-10 shadow-inner transition-opacity"></div>
+            </button>
+          </form>
+
+          <p className="mt-10 text-center text-sm font-medium text-slate-500">
+            Don’t have an account?{" "}
+            <Link to="/register" className="text-emerald-600 font-black uppercase tracking-wider hover:underline ml-1">
+              Join Academic Portal
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

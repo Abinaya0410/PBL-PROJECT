@@ -323,6 +323,8 @@ const CourseProgress = require("../models/CourseProgress");
 const Course = require("../models/Course");
 const Lesson = require("../models/Lesson");
 const AssignmentSubmission = require("../models/AssignmentSubmission");
+const Assignment = require("../models/Assignment");
+const User = require("../models/User");
 const mongoose = require("mongoose");
 
 // ======================================================
@@ -443,9 +445,140 @@ exports.getStudentAnalytics = async (req, res) => {
       coursePerformance,
       recentAttempts,
     });
-
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ======================================================
+// 📊 GET STUDENT DASHBOARD STATS (REAL DATA)
+// ======================================================
+exports.getStudentDashboardStats = async (req, res) => {
+  try {
+    const studentId = new mongoose.Types.ObjectId(req.user.id);
+
+    // 1. Courses Done
+    const coursesDone = await CourseProgress.countDocuments({
+      student: studentId,
+      completed: true
+    });
+
+    // 2. Total Assignments Submitted
+    const assignmentsSubmitted = await AssignmentSubmission.countDocuments({
+      student: studentId
+    });
+
+    // 3. Average Quiz Score
+    const quizAttempts = await QuizAttempt.find({ student: studentId });
+    let avgScore = 0;
+    if (quizAttempts.length > 0) {
+      const totalScore = quizAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0);
+      avgScore = Math.round(totalScore / quizAttempts.length);
+    }
+
+    res.json({
+      coursesDone,
+      assignmentsSubmitted,
+      avgScore
+    });
+  } catch (err) {
+    console.error("STUDENT DASHBOARD STATS ERROR:", err);
+    res.status(500).json({ message: "Server error calculating stats" });
+  }
+};
+
+// ======================================================
+// 📊 GET COURSE ANALYTICS (TEACHER)
+// ======================================================
+exports.getCourseAnalytics = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    if (!courseId || courseId === "undefined" || !mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: "Invalid Course ID provided" });
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    // 1. Total students enrolled
+    const totalStudents = course.enrolledStudents.length;
+
+    // 2. Assignments submitted
+    const assignments = await Assignment.find({ course: courseId });
+    const assignmentIds = assignments.map(a => a._id);
+    const totalSubmissions = await AssignmentSubmission.countDocuments({
+      assignment: { $in: assignmentIds },
+      status: "submitted"
+    });
+
+    // 3. Average quiz score & pass rate
+    const quizAttempts = await QuizAttempt.find({ course: courseId });
+    const totalAttempts = quizAttempts.length;
+    let totalScore = 0;
+    let passCount = 0;
+
+    quizAttempts.forEach(attempt => {
+      totalScore += attempt.score;
+      if (attempt.score >= 60) passCount++;
+    });
+
+    const averageQuizScore = totalAttempts > 0 ? Math.round(totalScore / totalAttempts) : 0;
+    const quizPassRate = totalAttempts > 0 ? Math.round((passCount / totalAttempts) * 100) : 0;
+
+    // 4. Student performance table
+    // We need to fetch progress for each student
+    const studentPerformance = await Promise.all(course.enrolledStudents.map(async (studentId) => {
+      const student = await User.findById(studentId).select("name email");
+      if (!student) return null;
+
+      // Lessons progress
+      const progress = await CourseProgress.findOne({ student: studentId, course: courseId });
+      const completedLessons = progress ? progress.completedLessons.length : 0;
+      const totalLessons = await Lesson.countDocuments({ course: courseId });
+
+      // Assignments status
+      const studentSubmissions = await AssignmentSubmission.find({
+        student: studentId,
+        assignment: { $in: assignmentIds }
+      });
+
+      // Quiz score
+      const studentAttempts = quizAttempts.filter(a => a.student.toString() === studentId.toString());
+      const bestScore = studentAttempts.length > 0 ? Math.max(...studentAttempts.map(a => a.score)) : 0;
+
+      // Status logic: Completed / In Progress / Not Attempted
+      let status = "Not Attempted";
+      if (progress && progress.completed) {
+        status = "Completed";
+      } else if (studentSubmissions.length > 0 || studentAttempts.length > 0 || (progress && progress.completedLessons.length > 0)) {
+        status = "In Progress";
+      }
+
+      return {
+        student: student.name,
+        email: student.email,
+        lessons: `${completedLessons}/${totalLessons}`,
+        assignments: studentSubmissions.length,
+        quizScore: bestScore,
+        attempts: studentAttempts.length,
+        status
+      };
+    }));
+
+    res.json({
+      totalStudents,
+      totalSubmissions,
+      averageQuizScore,
+      quizPassRate,
+      studentPerformance: studentPerformance.filter(s => s !== null)
+    });
+
+  } catch (err) {
+    console.error("COURSE ANALYTICS ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 };

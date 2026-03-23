@@ -109,61 +109,61 @@ export default function LessonDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] p-6 md:p-10 lg:p-16">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 p-6 md:p-10 lg:p-16">
       <div className="max-w-4xl mx-auto space-y-12">
         
         {/* Navigation */}
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-primary hover:translate-x-1 transition-all font-black uppercase tracking-widest text-[10px]"
+          className="flex items-center gap-2 text-indigo-500 hover:translate-x-1 transition-all font-black uppercase tracking-widest text-[10px]"
         >
           <ChevronLeft size={16} />
           Back to Module
         </button>
 
         {/* LESSON CONTENT */}
-        <div className="glass-card overflow-hidden">
-          <div className="h-2 bg-gradient-to-r from-primary to-accent"></div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
           <div className="p-8 md:p-12 space-y-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                 <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/20">Learning Unit</span>
+                 <span className="px-3 py-1 bg-indigo-500/10 text-indigo-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-500/20">Learning Unit</span>
                  {completed && (
                    <span className="flex items-center gap-1.5 text-emerald-500 font-black text-[10px] uppercase tracking-widest px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                      <CheckCircle size={12} /> Mastery Achieved
                    </span>
                  )}
               </div>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase text-slate-900 dark:text-white">
                 {lesson?.title}
               </h2>
-              <p className="text-xl text-[var(--secondary)] font-medium leading-relaxed italic opacity-80">
+              <p className="text-xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed italic opacity-80">
                 {lesson?.description}
               </p>
             </div>
 
             {lesson?.textContent && (
-              <div className="space-y-4 p-8 bg-[var(--background)] border border-[var(--border)] rounded-3xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+              <div className="space-y-4 p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-3xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none text-slate-900 dark:text-white">
                    <FileText size={80} />
                 </div>
-                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary">Transcript & Notes</h3>
-                <p className="text-[var(--foreground)] leading-loose font-medium relative z-10">{lesson.textContent}</p>
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-500">Transcript & Notes</h3>
+                <p className="text-slate-700 dark:text-slate-300 leading-loose font-medium relative z-10">{lesson.textContent}</p>
               </div>
             )}
 
             {lesson?.videoUrl && (
-              <div className="space-y-4 pt-4 border-t border-[var(--border)]">
-                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+              <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-500 flex items-center gap-2">
                    <Video size={16}/> Cinematic Resource
                  </h3>
                  <a
                   href={lesson.videoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-3 px-6 py-4 bg-[var(--background)] border border-primary/30 rounded-2xl group hover:border-primary transition-all shadow-lg shadow-primary/5 font-black text-sm text-[var(--foreground)]"
+                  className="inline-flex items-center gap-3 px-6 py-4 bg-white dark:bg-slate-800 border border-indigo-500/30 rounded-2xl group hover:border-indigo-500 transition-all shadow-lg shadow-indigo-500/5 font-black text-sm text-slate-900 dark:text-white"
                 >
-                  <div className="p-2 bg-primary text-white rounded-lg shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+                  <div className="p-2 bg-indigo-500 text-white rounded-lg shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
                      <Play size={18} fill="white"/>
                   </div>
                   Watch Masterclass Session
@@ -173,10 +173,10 @@ export default function LessonDetails() {
 
             {/* STUDENT COMPLETE BUTTON */}
             {role === "student" && !completed && (
-              <div className="pt-8 flex justify-center border-t border-[var(--border)]">
+              <div className="pt-8 flex justify-center border-t border-slate-100 dark:border-slate-800">
                 <button
                   onClick={markCompleted}
-                  className="primary-btn flex items-center gap-3 px-10 py-5 text-lg"
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-3 px-10 py-5 text-lg rounded-2xl font-black shadow-xl shadow-indigo-500/20 transition-all active:scale-95"
                 >
                   <CheckCircle size={24} />
                   Validate Completion
@@ -199,17 +199,17 @@ export default function LessonDetails() {
           </div>
 
           {questions.length === 0 ? (
-            <div className="glass-card p-16 text-center border-dashed border-2">
-               <QuestionIcon className="mx-auto text-gray-300 mb-4" size={48}/>
-               <p className="text-sm font-black text-[var(--secondary)] uppercase tracking-widest italic leading-none mb-1">Assessment Pending</p>
-               <p className="text-xs text-gray-400 font-medium">Practice queries will appear here once published.</p>
+            <div className="bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 p-16 rounded-[3rem] text-center">
+               <QuestionIcon className="mx-auto text-slate-400 dark:text-slate-300 dark:text-slate-700 mb-4" size={48}/>
+               <p className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest italic leading-none mb-1">Assessment Pending</p>
+               <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium">Practice queries will appear here once published.</p>
             </div>
           ) : (
             <div className="space-y-8">
               {questions.map((q, index) => (
                 <div
                   key={q._id}
-                  className="glass-card p-8 md:p-10 space-y-8 group transition-all duration-500 overflow-hidden relative"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 md:p-10 rounded-[2.5rem] space-y-8 group transition-all duration-500 overflow-hidden relative shadow-xl"
                 >
                   <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
                      <QuestionIcon size={120} className="text-accent" />

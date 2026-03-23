@@ -23,12 +23,33 @@ export default function StudentDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
+  const [dashboardStats, setDashboardStats] = useState({
+    coursesDone: 0,
+    assignmentsSubmitted: 0,
+    avgScore: 0
+  });
   const storedName = localStorage.getItem("name") || "Student";
 
   useEffect(() => {
     fetchEnrolledCourses();
     fetchAnnouncements();
+    fetchDashboardStats();
   }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5000/api/analytics/student-stats", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data && !data.message) {
+        setDashboardStats(data);
+      }
+    } catch (err) {
+      console.error("Error fetching dashboard stats:", err);
+    }
+  };
 
   const fetchAnnouncements = async () => {
     try {
@@ -92,9 +113,27 @@ export default function StudentDashboard() {
 
       {/* STATS */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard icon={<Clock className="text-indigo-500"/>} label="Learning Hours" value="12.5" trend="+2.4h" color="indigo" />
-        <StatCard icon={<CheckCircle className="text-emerald-500"/>} label="Courses Done" value="4" trend="1 pending" color="emerald" />
-        <StatCard icon={<BarChart3 className="text-violet-500"/>} label="Avg Score" value="92%" trend="Top 5%" color="violet" />
+        <StatCard
+          icon={<CheckCircle className="text-emerald-500"/>}
+          label="Courses Done"
+          value={dashboardStats?.coursesDone || 0}
+          trend="Real-time"
+          color="emerald"
+        />
+        <StatCard
+          icon={<LayoutDashboard className="text-indigo-500"/>}
+          label="Assignments Submitted"
+          value={dashboardStats?.assignmentsSubmitted || 0}
+          trend="Total"
+          color="indigo"
+        />
+        <StatCard
+          icon={<BarChart3 className="text-violet-500"/>}
+          label="Avg Score"
+          value={`${dashboardStats?.avgScore || 0}%`}
+          trend="Overall"
+          color="violet"
+        />
       </section>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
@@ -109,16 +148,16 @@ export default function StudentDashboard() {
 
           <div className="space-y-4">
             {loading ? (
-              <div className="p-10 text-center text-gray-400 italic">Loading your courses...</div>
+              <div className="p-10 text-center text-slate-500 dark:text-slate-400 italic">Preparing your curriculum...</div>
             ) : courses.length === 0 ? (
-              <div className="glass-card p-10 text-center text-gray-500 font-medium border-dashed border-2">
-                {courses.length > 0 ? "You've completed your active courses!" : "You have not enrolled in any courses yet."}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 rounded-3xl text-center text-slate-500 font-medium border-dashed border-2">
+                {courses.length > 0 ? "You've mastered all active courses!" : "Navigate to discovery to begin your learning journey."}
               </div>
             ) : (
               courses
-                .slice(0, 3) 
+                .slice(0, 3)
                 .map(course => (
-                  <CourseProgressCard 
+                  <CourseProgressCard
                     key={course._id}
                     title={course.title}
                     progress={course.progress || 0}
@@ -133,12 +172,12 @@ export default function StudentDashboard() {
 
         {/* UPCOMING DEADLINES / ANNOUNCEMENTS */}
         <div className="space-y-6">
-          <h3 className="text-2xl font-black">Announcements</h3>
-          <div className="glass-card p-6 h-full flex flex-col gap-6 overflow-y-auto max-h-[400px]">
+          <h3 className="text-2xl font-black uppercase tracking-tight leading-none">ANNOUNCEMENTS</h3>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl h-full flex flex-col gap-6 overflow-y-auto max-h-[400px] shadow-lg hover-lift">
             {loadingAnnouncements ? (
-              <div className="text-center text-gray-500 italic py-10">Searching for updates...</div>
+              <div className="text-center text-gray-600 dark:text-gray-500 italic py-10">Searching for updates...</div>
             ) : announcements.length === 0 ? (
-              <div className="text-center text-gray-500 italic py-10">No new announcements</div>
+              <div className="text-center text-gray-600 dark:text-gray-500 italic py-10">No new announcements</div>
             ) : (
               announcements.map((ann) => (
                 <div key={ann._id} className="flex gap-4 group cursor-pointer border-b border-[var(--border)] pb-6 last:border-0">
@@ -148,10 +187,10 @@ export default function StudentDashboard() {
                   <div className="flex-1">
                     <div className="flex justify-between items-start mb-1">
                       <h4 className="font-bold text-sm group-hover:text-indigo-500 transition-colors uppercase tracking-tight">{ann.type || 'Notice'}</h4>
-                      <span className="text-[10px] text-gray-500 font-bold">{new Date(ann.createdAt).toLocaleDateString()}</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">{new Date(ann.createdAt).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-xs text-gray-500 leading-relaxed mb-1">{ann.message}</p>
-                    <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Course: {ann.course?.title || 'General'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-1 italic font-medium">{ann.message}</p>
+                    <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Node: {ann.course?.title || 'System'}</p>
                   </div>
                 </div>
               ))
@@ -165,12 +204,12 @@ export default function StudentDashboard() {
 
 function StatCard({ icon, label, value, trend, color }) {
   return (
-    <div className="glass-card p-6 flex items-center gap-5 hover:-translate-y-2 group">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl flex items-center gap-5 hover-lift group">
       <div className={`p-4 bg-${color}-500/10 rounded-2xl transition-transform group-hover:scale-110`}>
         {icon}
       </div>
       <div>
-        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{label}</p>
+        <p className="text-xs font-bold text-gray-600 dark:text-gray-500 uppercase tracking-widest">{label}</p>
         <div className="flex items-end gap-2 mt-1">
           <h3 className="text-3xl font-black">{value}</h3>
           <span className={`text-[10px] font-bold mb-1.5 px-1.5 py-0.5 rounded-md bg-${color}-500/10 text-${color}-500`}>
@@ -184,13 +223,13 @@ function StatCard({ icon, label, value, trend, color }) {
 
 function CourseProgressCard({ title, progress, nextLesson, instructor, onClick }) {
   return (
-    <div onClick={onClick} className="glass-card p-6 group cursor-pointer hover:border-indigo-500 transition-all active:scale-[0.99]">
+    <div onClick={onClick} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] group cursor-pointer hover:border-indigo-500 transition-all active:scale-[0.99] shadow-md hover-lift">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2 flex-1">
           <h4 className="text-lg font-bold group-hover:text-indigo-500 transition-colors">{title}</h4>
-          <p className="text-xs text-gray-500 font-medium">Instructor: {instructor}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-500 font-medium">Instructor: {instructor}</p>
           <div className="pt-2">
-            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400 mb-1.5">
               <span>Next: {nextLesson}</span>
               <span>{progress}%</span>
             </div>

@@ -97,7 +97,7 @@ const CompletedCourseReview = () => {
           <div className="relative z-10 space-y-12">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 py-8 border-b border-[var(--border)]">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Completion Date</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400">Completion Date</p>
                 <div className="flex items-center gap-2 text-xl font-black">
                   <Calendar size={18} className="text-emerald-500" />
                   {new Date(data.completionDate).toLocaleDateString(undefined, {
@@ -108,7 +108,7 @@ const CompletedCourseReview = () => {
                 </div>
               </div>
               <div className="space-y-1 md:text-right">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Official Status</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400">Official Status</p>
                 <div className="flex items-center gap-2 text-xl font-black text-emerald-500 md:justify-end">
                   <CheckCircle size={18} />
                   {data.status}
@@ -123,7 +123,7 @@ const CompletedCourseReview = () => {
                   <Clock size={24} />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Quiz Score</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400">Quiz Score</p>
                   <p className="text-4xl font-black text-indigo-500">{data.quizScore}%</p>
                 </div>
               </div>
@@ -133,7 +133,7 @@ const CompletedCourseReview = () => {
                   <FileText size={24} />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Assignment Score</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400">Assignment Score</p>
                   <p className="text-4xl font-black text-emerald-500">{data.assignmentScore || "N/A"}{data.assignmentScore ? '%' : ''}</p>
                 </div>
               </div>

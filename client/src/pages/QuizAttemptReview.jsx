@@ -62,7 +62,7 @@ export default function QuizAttemptReview() {
         <div className="glass-card p-10 text-center max-w-md w-full border-dashed border-2">
            <AlertCircle className="mx-auto text-rose-500 mb-4" size={48} />
            <h3 className="text-xl font-black uppercase tracking-tight mb-2">Review Unavailable</h3>
-           <p className="text-sm text-gray-500 italic mb-6">{error || "Attempt not found."}</p>
+           <p className="text-sm text-gray-600 dark:text-gray-500 italic mb-6">{error || "Attempt not found."}</p>
            <button onClick={() => navigate("/quiz-attempts")} className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold">Return Back</button>
         </div>
       </div>
@@ -91,7 +91,7 @@ export default function QuizAttemptReview() {
 
           <div className="flex items-center gap-6">
              <div className="text-right">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Final Score</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400 mb-1">Final Score</p>
                 <p className={`text-4xl font-black ${attempt.score >= 60 ? 'text-emerald-500' : 'text-rose-500'}`}>{attempt.score}%</p>
              </div>
              <div className={`w-20 h-20 rounded-3xl ${attempt.score >= 60 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'} border flex items-center justify-center shadow-xl`}>
@@ -128,7 +128,7 @@ export default function QuizAttemptReview() {
               const isSelected = opt === q.selectedAnswer;
               const isCorrectAnswer = opt === q.correctAnswer;
               
-              let stateStyle = "border-[var(--border)] text-gray-400";
+              let stateStyle = "border-[var(--border)] text-gray-600 dark:text-gray-500 dark:text-gray-400";
               if (isSelected && q.isCorrect) stateStyle = "border-emerald-500 bg-emerald-500/5 text-emerald-500";
               if (isSelected && !q.isCorrect) stateStyle = "border-rose-500 bg-rose-500/5 text-rose-500";
               if (!isSelected && isCorrectAnswer && !q.isCorrect) stateStyle = "border-emerald-500/30 bg-emerald-500/5 text-emerald-500/60";
@@ -144,11 +144,11 @@ export default function QuizAttemptReview() {
 
          <div className="pt-6 border-t border-[var(--border)] flex flex-wrap gap-6">
             <div className="space-y-1">
-               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Your Selection</p>
+               <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500">Your Selection</p>
                <p className={`text-sm font-bold ${q.isCorrect ? 'text-emerald-500' : 'text-rose-500'}`}>{q.selectedAnswer || "No Answer"}</p>
             </div>
             <div className="space-y-1">
-               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Correct Solution</p>
+               <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500">Correct Solution</p>
                <p className="text-sm font-bold text-emerald-500">{q.correctAnswer}</p>
             </div>
          </div>
@@ -169,11 +169,11 @@ function StatBox({ icon, label, value, subtext }) {
           <div className="p-2 bg-[var(--background)] rounded-xl border border-[var(--border)] shadow-inner">
              {icon}
           </div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400">{label}</span>
        </div>
        <div>
           <p className="text-2xl font-black">{value}</p>
-          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 opacity-70">{subtext}</p>
+          <p className="text-[9px] font-bold text-gray-600 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1 opacity-70">{subtext}</p>
        </div>
     </div>
   );

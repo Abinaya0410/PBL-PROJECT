@@ -24,6 +24,11 @@ const announcementSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    
+    targetStudent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   { timestamps: true }
 );

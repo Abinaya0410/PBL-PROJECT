@@ -12,7 +12,10 @@ const {
   checkQuizUnlock,
   deleteAssignment,
   getAssignment,
-  updateAssignment
+  updateAssignment,
+  getPendingSubmissionsCount,
+  getTeacherAllSubmissions,
+  getTeacherQuizAttempts
 } = require("../controllers/assignmentController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -61,6 +64,30 @@ router.put(
   gradeSubmission
 );
 
+// Teacher views all submissions across their courses
+router.get(
+  "/teacher/all",
+  authMiddleware,
+  isTeacher,
+  getTeacherAllSubmissions
+);
+
+// Teacher views all quiz attempts across their courses
+router.get(
+  "/teacher/quiz-attempts",
+  authMiddleware,
+  isTeacher,
+  getTeacherQuizAttempts
+);
+
+// Teacher views all quiz attempts across their courses
+router.get(
+  "/teacher/quiz-attempts",
+  authMiddleware,
+  isTeacher,
+  getTeacherQuizAttempts
+);
+
 // Student checks quiz unlock
 router.get(
   "/check/:courseId",
@@ -99,4 +126,12 @@ router.put(
   upload.single("pdf"),
   updateAssignment
 );
+// GET PENDING SUBMISSIONS COUNT
+router.get(
+  "/pending-count",
+  authMiddleware,
+  isTeacher,
+  getPendingSubmissionsCount
+);
+
 module.exports = router;

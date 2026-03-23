@@ -208,7 +208,7 @@
 //         />
 
 //         <div>
-//           <p className="text-gray-400 mb-2">
+//           <p className="text-gray-600 dark:text-gray-500 dark:text-gray-400 mb-2">
 //             Replace PDF (optional)
 //           </p>
 
@@ -335,102 +335,93 @@ export default function EditAssignment() {
   };
 
   return(
+    <div className="p-8 lg:p-12 flex items-center justify-center min-h-[calc(100vh-80px)]">
+      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
 
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 flex items-center justify-center p-10">
-
-      <div className="w-full max-w-2xl bg-slate-900 border border-yellow-500/30 p-8 rounded-xl shadow-xl">
-
-        <h1 className="text-3xl font-bold text-yellow-400 mb-6 text-center">
-          Edit Assignment
-        </h1>
-
-        {/* SUCCESS MESSAGE */}
-        {message && (
-          <div className="mb-6 bg-green-600/20 border border-green-500 text-green-300 p-3 rounded-lg">
-            {message}
-          </div>
-        )}
-
-        {/* ERROR MESSAGE */}
-        {error && (
-          <div className="mb-6 bg-red-600/20 border border-red-500 text-red-300 p-3 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={updateAssignment} className="space-y-6">
-
-          {/* TITLE */}
-          <div>
-            <label className="block mb-2 text-white font-semibold">
-              Assignment Title
-            </label>
-
-            <input
-              type="text"
-              placeholder="Enter assignment title"
-              value={title}
-              onChange={(e)=>setTitle(e.target.value)}
-              className="w-full bg-slate-800 text-white placeholder-gray-400 p-3 rounded-lg border border-slate-700 focus:border-yellow-500 outline-none"
-            />
+        <div className="relative z-10">
+          <div className="mb-10">
+             <h1 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">
+               Refactor Task
+             </h1>
+             <p className="text-slate-500 dark:text-slate-400 font-medium italic mt-2">
+               Modify the operational parameters for this assessment module.
+             </p>
           </div>
 
-          {/* DESCRIPTION */}
-          <div>
-            <label className="block mb-2 text-white font-semibold">
-              Description
-            </label>
+          {message && (
+            <div className="mb-8 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 p-4 rounded-2xl text-center font-black uppercase tracking-widest text-xs animate-pulse">
+              {message} ✓
+            </div>
+          )}
 
-            <textarea
-              placeholder="Enter assignment description"
-              value={description}
-              onChange={(e)=>setDescription(e.target.value)}
-              rows="4"
-              className="w-full bg-slate-800 text-white placeholder-gray-400 p-3 rounded-lg border border-slate-700 focus:border-yellow-500 outline-none"
-            />
-          </div>
+          {error && (
+            <div className="mb-8 bg-rose-500/10 border border-rose-500/20 text-rose-500 p-4 rounded-2xl text-center font-black uppercase tracking-widest text-xs">
+              {error}
+            </div>
+          )}
 
-          {/* DUE DATE */}
-          <div>
-            <label className="block mb-2 text-white font-semibold">
-              Due Date
-            </label>
+          <form onSubmit={updateAssignment} className="space-y-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Task Identification</label>
+              <input
+                type="text"
+                placeholder="Operational Title"
+                value={title}
+                onChange={(e)=>setTitle(e.target.value)}
+                className="w-full p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-black"
+              />
+            </div>
 
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e)=>setDueDate(e.target.value)}
-              className="w-full bg-slate-800 text-white p-3 rounded-lg border border-slate-700 focus:border-yellow-500 outline-none"
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Instructional Scope</label>
+              <textarea
+                placeholder="Define the task requirements..."
+                value={description}
+                onChange={(e)=>setDescription(e.target.value)}
+                rows="4"
+                className="w-full p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-medium"
+              />
+            </div>
 
-          {/* PDF REPLACE */}
-          <div>
-            <label className="block mb-2 text-white font-semibold">
-              Replace Assignment PDF (optional)
-            </label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Temporal Deadline</label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e)=>setDueDate(e.target.value)}
+                className="w-full p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-black text-center"
+              />
+            </div>
 
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={(e)=>setPdf(e.target.files[0])}
-              className="w-full bg-slate-800 text-white p-3 rounded-lg border border-slate-700"
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Technical Documentation (PDF)</label>
+              <div className="relative group/file">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e)=>setPdf(e.target.files[0])}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <div className="w-full p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center gap-3 text-slate-500 dark:text-slate-400 group-hover/file:border-cyan-500/50 transition-all">
+                  <FileText size={20}/>
+                  <span className="text-xs font-black uppercase tracking-widest italic">{pdf ? pdf.name : "Replace Existing Asset"}</span>
+                </div>
+              </div>
+            </div>
 
-          {/* BUTTON */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold p-3 rounded-lg transition disabled:opacity-50"
-          >
-            {loading ? "Updating..." : "Update Assignment"}
-          </button>
-
-        </form>
-
+            <div className="pt-6">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition-all shadow-xl disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
+              >
+                {loading ? "Synchronizing Asset..." : "Sync Changes"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-
     </div>
   );
-}
+}

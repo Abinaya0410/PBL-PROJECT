@@ -4,6 +4,8 @@ const ModuleQuestion = require("../models/ModuleQuestion");
 const LessonProgress = require("../models/LessonProgress");
 const QuizAttempt = require("../models/QuizAttempt");
 const User = require("../models/User");
+const Lesson = require("../models/Lesson");
+const { evaluateCourseCompletion } = require("../services/completionHelper");
 
 // Shuffle function
 const shuffleArray = (array) => {
@@ -45,10 +47,17 @@ const startQuiz = async (req, res) => {
       });
     }
 
-    // Create attempt with start time
+    // Fetch lesson to get courseId before creating attempt
+    const lesson = await Lesson.findById(lessonId);
+    if (!lesson || !lesson.course) {
+      return res.status(404).json({ message: "Lesson or associated course not found." });
+    }
+
+    // Create attempt with start time AND course
     const attempt = await QuizAttempt.create({
       student: studentId,
       lesson: lessonId,
+      course: lesson.course,
       startTime: new Date(),
     });
 
@@ -208,6 +217,16 @@ const submitQuiz = async (req, res) => {
     attempt.timeSpent = timeSpent;
 
     await attempt.save();
+
+    // 🚀 TRIGGER COURSE COMPLETION CHECK
+    try {
+      const lesson = await Lesson.findById(lessonId);
+      if (lesson && lesson.course) {
+        await evaluateCourseCompletion(studentId, lesson.course);
+      }
+    } catch (completionErr) {
+      console.error("Failed to evaluate course completion after quiz:", completionErr);
+    }
 
     // 🏆 Award Points (Tiered based on score out of 20)
     // Percentage: (score/20) * 100

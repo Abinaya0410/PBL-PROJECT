@@ -34,7 +34,7 @@ const createCourse = async (req, res) => {
 const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find({
-      enrolledStudents: { $ne: req.user.id },
+      enrolledStudents: { $ne: req.user.id }
     }).populate("teacher", "name email");
 
     res.json(courses);
@@ -48,22 +48,28 @@ const getAllCourses = async (req, res) => {
 // =======================
 const enrollCourse = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.courseId);
+    const { id } = req.params;
+    const course = await Course.findById(id);
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    if (course.enrolledStudents.includes(req.user.id)) {
+    const studentId = req.user.id;
+    const isAlreadyEnrolled = course.enrolledStudents.some(
+      (sId) => sId.toString() === studentId.toString()
+    );
+
+    if (isAlreadyEnrolled) {
       return res.status(400).json({ message: "Already enrolled" });
     }
 
-    course.enrolledStudents.push(req.user.id);
-
+    course.enrolledStudents.push(studentId);
     await course.save();
 
     res.json({ message: "Enrolled successfully" });
   } catch (error) {
+    console.error("Enrollment Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -76,7 +82,25 @@ const getTeacherCourses = async (req, res) => {
     const courses = await Course.find({ teacher: req.user.id })
       .populate("teacher", "name email");
 
-    res.json(courses);
+    const coursesWithStats = await Promise.all(
+      courses.map(async (course) => {
+        const lessonsCount = await Lesson.countDocuments({ course: course._id });
+        const assignmentsCount = await Assignment.countDocuments({ course: course._id });
+        const quizzesCount = await Quiz.countDocuments({ course: course._id });
+        
+        return {
+          ...course.toObject(),
+          stats: {
+            students: course.enrolledStudents.length,
+            modules: lessonsCount,
+            assignments: assignmentsCount,
+            quizzes: quizzesCount
+          }
+        };
+      })
+    );
+
+    res.json(coursesWithStats);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -191,32 +215,47 @@ const getEnrolledCourses = async (req, res) => {
 
         // 2. Assignment Progress
         const assignment = await Assignment.findOne({ course: course._id });
-        let assignmentDone = false;
+        let assignmentDone = true; // Default if no assignment exists
         if (assignment) {
           const submission = await AssignmentSubmission.findOne({
-            assignment: assignment._id,
             student: req.user.id,
-            status: "graded" // Assuming graded means done as per quiz unlock logic
+            $or: [
+              { course: course._id },
+              { assignment: assignment._id } // Fallback for old records
+            ],
+            status: "graded"
           });
-          if (submission) assignmentDone = true;
+          assignmentDone = !!submission;
         }
 
         // 3. Quiz Progress
         const quiz = await Quiz.findOne({ course: course._id });
-        let quizDone = false;
+        let quizDone = true; // Default if no quiz exists
         if (quiz) {
           const passAttempt = await QuizAttempt.findOne({
-            course: course._id,
             student: req.user.id,
-            score: { $gte: 60 }
+            $or: [
+              { 
+                course: course._id,
+                $or: [
+                  { lesson: { $exists: false }, score: { $gte: 60 } }, // course quiz percentage
+                  { lesson: { $exists: true },  score: { $gte: 12 } }  // lesson quiz raw count
+                ]
+              },
+              {
+                lesson: { $in: lessonIds },
+                score: { $gte: 12 }
+              }
+            ]
           });
-          if (passAttempt) quizDone = true;
+          quizDone = !!passAttempt;
         }
 
         // 4. Calculate Combined Progress
-        // Units: Total Lessons + (if assignment exists ? 1 : 0) + (if quiz exists ? 1 : 0)
         const totalUnits = totalLessons + (assignment ? 1 : 0) + (quiz ? 1 : 0);
-        const completedUnits = completedLessonsCount + (assignmentDone ? 1 : 0) + (quizDone ? 1 : 0);
+        const completedUnits = (Math.min(completedLessonsCount, totalLessons)) + 
+          (assignment ? (assignmentDone ? 1 : 0) : 0) + 
+          (quiz ? (quizDone ? 1 : 0) : 0);
 
         const progress = totalUnits === 0 ? 0 : Math.round((completedUnits / totalUnits) * 100);
 
@@ -226,24 +265,53 @@ const getEnrolledCourses = async (req, res) => {
           course: course._id
         });
 
-        // 6. Final Strict Completion Check
+        // 6. Final Strict Completion Check (Sync with helper logic)
         const isFullyCompleted = 
-          totalLessons > 0 && 
-          completedLessonsCount === totalLessons && 
+          (totalLessons === 0 || completedLessonsCount === totalLessons) && 
           assignmentDone && 
           quizDone;
+
+        // 🛡️ AUTO-PERSISTENCE SAFETY NET:
+        // If the calculation says 100% complete but database says false, "self-heal" the record now.
+        if (isFullyCompleted && (!courseProgress || !courseProgress.completed)) {
+          console.log(`[SAFETY NET] Auto-completing course ${course.title} for student ${req.user.id}`);
+          await CourseProgress.findOneAndUpdate(
+            { student: req.user.id, course: course._id },
+            { completed: true, completedAt: new Date() },
+            { upsert: true }
+          );
+        }
 
         return {
           ...course.toObject(),
           progress,
-          quizCompleted: quizDone,
-          isFullyCompleted, // ✅ New flag for frontend filtering
-          completed: isFullyCompleted // Support existing 'completed' field if used
+          quizCompleted: quiz ? quizDone : true,
+          isFullyCompleted, 
+          completed: isFullyCompleted || (courseProgress ? courseProgress.completed : false)
         };
       })
     );
 
     res.json(coursesWithProgress);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// =======================
+// GET STUDENT COMPLETED COURSES
+// =======================
+const getCompletedCourses = async (req, res) => {
+  try {
+    const completedCourses = await CourseProgress.find({
+      student: req.user.id,
+      completed: true
+    }).populate({
+      path: "course",
+      populate: { path: "teacher", select: "name email" }
+    });
+
+    res.json(completedCourses);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -331,6 +399,7 @@ module.exports = {
   enrollCourse,
   getTeacherCourses,
   getEnrolledCourses,
+  getCompletedCourses,
   updateCourse,
   deleteCourse,
   getAnnouncements,

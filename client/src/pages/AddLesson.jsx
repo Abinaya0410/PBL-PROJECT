@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { ChevronLeft } from "lucide-react";
 
 export default function AddLesson() {
   const { id } = useParams();
@@ -66,74 +67,98 @@ export default function AddLesson() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex justify-center items-start py-12 text-white">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-slate-900 p-10 rounded-2xl w-[900px] border border-slate-700 shadow-2xl"
-      >
-        <h2 className="text-3xl font-bold mb-8 text-cyan-400">
-          Add Lesson
-        </h2>
+    <div className="p-8 lg:p-12 flex justify-center items-start min-h-[calc(100vh-80px)]">
+      <div className="w-full max-w-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
 
-        {/* TITLE */}
-        <input
-          name="title"
-          placeholder="Lesson Title"
-          value={lesson.title}
-          onChange={handleChange}
-          className="w-full mb-4 p-4 rounded-lg bg-slate-800 border border-slate-700"
-          required
-        />
-
-        {/* DESCRIPTION */}
-        <textarea
-          name="description"
-          placeholder="Short Description"
-          value={lesson.description}
-          onChange={handleChange}
-          className="w-full mb-4 p-4 rounded-lg bg-slate-800 border border-slate-700 min-h-[100px]"
-        />
-
-        {/* TEXT CONTENT */}
-        <textarea
-          name="textContent"
-          placeholder="Lesson Notes / Explanation (optional)"
-          value={lesson.textContent}
-          onChange={handleChange}
-          className="w-full mb-4 p-4 rounded-lg bg-slate-800 border border-slate-700 min-h-[250px]"
-        />
-
-        {/* VIDEO URL */}
-        <input
-          name="videoUrl"
-          placeholder="YouTube Video URL (optional)"
-          value={lesson.videoUrl}
-          onChange={handleChange}
-          className="w-full mb-4 p-4 rounded-lg bg-slate-800 border border-slate-700"
-        />
-
-        {/* ORDER */}
-        <input
-          type="number"
-          name="order"
-          placeholder="Lesson Order (1,2,3...)"
-          value={lesson.order}
-          onChange={handleChange}
-          className="w-full mb-4 p-4 rounded-lg bg-slate-800 border border-slate-700"
-          required
-        />
-
-        {/* SUCCESS MESSAGE — NOW NEAR BUTTON */}
-        {success && (
-          <div className="mb-4 bg-green-600/20 border border-green-500 text-green-400 px-4 py-3 rounded-lg text-center font-semibold">
-            Lesson added successfully ✓
+        <div className="relative z-10">
+          <div className="mb-10 flex justify-between items-start">
+             <div>
+               <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Create new lesson</h2>
+               <p className="text-slate-500 dark:text-slate-400 font-medium italic mt-2">Add a new lesson to your course curriculum.</p>
+             </div>
+             <button 
+                onClick={() => navigate(`/teacher/course/${id}`)}
+                className="text-slate-500 dark:text-slate-400 hover:text-cyan-500 transition-colors"
+                title="Abort Mission"
+             >
+               <ChevronLeft size={32} />
+             </button>
           </div>
-        )}
 
-        <button className="w-full bg-cyan-600 hover:bg-cyan-500 p-4 rounded-lg font-semibold text-lg transition-all duration-300">
-          Save Lesson
-        </button>
-      </form>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Lesson Title</label>
+              <input
+                name="title"
+                placeholder="e.g. Fundamental Quantum States"
+                value={lesson.title}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-black"
+                required
+              />
+            </div>
+
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Lesson Description</label>
+              <textarea
+                name="description"
+                placeholder="Briefly define the instructional scope..."
+                value={lesson.description}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-medium h-24"
+              />
+            </div>
+
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Lesson Notes</label>
+              <textarea
+                name="textContent"
+                placeholder="Deep dive into the academic details..."
+                value={lesson.textContent}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-medium h-60"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Lesson Video URL</label>
+              <input
+                name="videoUrl"
+                placeholder="YouTube Archive URL"
+                value={lesson.videoUrl}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-medium"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Sequence Position</label>
+              <input
+                type="number"
+                name="order"
+                placeholder="Module Priority (1, 2, ...)"
+                value={lesson.order}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-black text-center"
+                required
+              />
+            </div>
+
+            {success && (
+              <div className="md:col-span-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 p-4 rounded-2xl text-center font-black uppercase tracking-widest text-xs animate-pulse">
+                Lesson Created Successfully ✓
+              </div>
+            )}
+
+            <div className="md:col-span-2 pt-6">
+              <button className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition-all shadow-xl active:scale-95">
+                Add Lesson
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

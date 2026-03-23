@@ -34,14 +34,14 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-72 min-h-screen bg-[var(--card)] border-r border-[var(--border)] flex flex-col p-6 hidden lg:flex transition-all">
+    <div className="w-72 min-h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col p-6 hidden lg:flex transition-all">
       
       {/* BRANDING */}
       <div className="flex items-center gap-3 mb-10 px-2">
         <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white shadow-lg shadow-indigo-500/20">
           <GraduationCap size={24}/>
         </div>
-        <h2 className="text-xl font-black tracking-tight text-[var(--foreground)]">Virtual Academic Portal</h2>
+        <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Virtual Academic Portal</h2>
       </div>
 
       {/* Menu */}
@@ -57,7 +57,7 @@ export default function Sidebar() {
               className={`flex items-center gap-3 w-full p-3.5 rounded-2xl transition-all duration-300 font-semibold text-sm ${
                 isActive 
                   ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20 translate-x-1' 
-                  : 'text-gray-500 hover:text-[var(--foreground)] hover:bg-[var(--background)] hover:translate-x-1'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 hover:translate-x-1'
               }`}
             >
               <Icon size={18} />

@@ -41,7 +41,7 @@ export default function LearnerXP() {
 
   if (!data) {
     return (
-      <div className="p-12 text-center text-gray-500 font-bold">
+      <div className="p-12 text-center text-gray-600 dark:text-gray-500 font-bold">
         Failed to load score data. Please refresh.
       </div>
     );
@@ -83,7 +83,7 @@ export default function LearnerXP() {
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-2">Total Score</p>
           <h2 className="text-7xl font-black text-white leading-none">
             {totalXP}
-            <span className="text-3xl text-gray-500 ml-3 font-bold">pts</span>
+            <span className="text-3xl text-gray-600 dark:text-gray-500 ml-3 font-bold">pts</span>
           </h2>
         </div>
       </div>
@@ -97,8 +97,8 @@ export default function LearnerXP() {
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Assignment Points</p>
-            <p className="text-4xl font-black text-white">{assignmentXP}<span className="text-lg text-gray-500 ml-2">pts</span></p>
-            <p className="text-[10px] font-bold text-gray-500 mt-1">+50 pts per submission</p>
+            <p className="text-4xl font-black text-white">{assignmentXP}<span className="text-lg text-gray-600 dark:text-gray-500 ml-2">pts</span></p>
+            <p className="text-[10px] font-bold text-gray-600 dark:text-gray-500 mt-1">+50 pts per submission</p>
           </div>
         </div>
 
@@ -109,8 +109,8 @@ export default function LearnerXP() {
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-amber-400 mb-1">Quiz Efficiency</p>
-            <p className="text-4xl font-black text-white">{quizXP}<span className="text-lg text-gray-500 ml-2">pts</span></p>
-            <p className="text-[10px] font-bold text-gray-500 mt-1">Fewer attempts = more pts</p>
+            <p className="text-4xl font-black text-white">{quizXP}<span className="text-lg text-gray-600 dark:text-gray-500 ml-2">pts</span></p>
+            <p className="text-[10px] font-bold text-gray-600 dark:text-gray-500 mt-1">Fewer attempts = more pts</p>
           </div>
         </div>
       </div>
@@ -175,7 +175,7 @@ export default function LearnerXP() {
 function EmptyState({ message }) {
   return (
     <div className="glass-card p-10 text-center border-dashed border-2">
-      <p className="text-sm font-bold text-gray-500 italic">{message}</p>
+      <p className="text-sm font-bold text-gray-600 dark:text-gray-500 italic">{message}</p>
     </div>
   );
 }

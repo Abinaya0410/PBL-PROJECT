@@ -47,21 +47,26 @@ export default function CreateCourse() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-300">
       <form
         onSubmit={handleSubmit}
-        className="bg-slate-900 p-10 rounded-xl w-[500px] border border-slate-700 shadow-2xl"
+        className="bg-white dark:bg-slate-900 p-10 rounded-3xl w-[500px] border border-slate-200 dark:border-slate-800 shadow-2xl transition-all"
       >
-        <h2 className="text-2xl font-bold text-white mb-6">
-          Create New Course
-        </h2>
+        <div className="mb-8">
+          <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+            Create New Course
+          </h2>
+          <p className="text-slate-500 dark:text-slate-400 font-medium italic mt-2">
+            Enter the course title and description to create a new course.
+          </p>
+        </div>
 
         <input
           name="title"
           placeholder="Course Title"
           value={course.title}
           onChange={handleChange}
-          className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-700"
+          className="w-full mb-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-cyan-500 outline-none transition-all"
           required
         />
 
@@ -70,7 +75,7 @@ export default function CreateCourse() {
           placeholder="Course Description"
           value={course.description}
           onChange={handleChange}
-          className="w-full mb-6 p-3 rounded-lg bg-slate-800 text-white border border-slate-700"
+          className="w-full mb-8 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-cyan-500 outline-none transition-all h-32"
           required
         />
 

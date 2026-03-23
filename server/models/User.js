@@ -80,11 +80,22 @@ const userSchema = new mongoose.Schema(
     qualification: String,
 
     // 🌍 COMMON FIELDS
+    mobileNumber: {
+      type: String,
+      required: true,
+      validate: {
+        validator: function(v) {
+          return /^[6-9]\d{9}$/.test(v);
+        },
+        message: props => `${props.value} is not a valid Indian mobile number!`
+      }
+    },
     phone: String,
-    country: String,
-    state: String,
-    city: String,
     
+    // 🔐 PASSWORD RESET FIELDS
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+
     // 🏆 POINTS SYSTEM
     points: {
       type: Number,

@@ -244,9 +244,10 @@ const {
   editQuizQuestion,
   deleteQuizQuestion,
   getCompletedCourses,
-  getStudentQuizAttempts,
   getSingleAttempt,
-  getAttemptsByCourse
+  getAttemptsByCourse,
+  getTeacherQuizActivity,
+  getStudentQuizAttempts
 } = require("../controllers/manualQuizController");
 
 const {
@@ -323,6 +324,13 @@ router.get(
   "/quiz-attempts/course/:courseId",
   authMiddleware,
   getAttemptsByCourse
+);
+
+router.get(
+  "/teacher/activity",
+  authMiddleware,
+  isTeacher,
+  getTeacherQuizActivity
 );
 
 router.get(

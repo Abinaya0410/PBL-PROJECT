@@ -552,3 +552,25 @@ exports.getSingleAttempt = async (req, res) => {
 //     res.status(500).json({ message: err.message });
 //   }
 // };
+
+// ======================================================
+// 🟢 GET ALL QUIZ ACTIVITY FOR TEACHER'S COURSES
+// ======================================================
+exports.getTeacherQuizActivity = async (req, res) => {
+  try {
+    const Course = require("../models/Course");
+    const teacherCourses = await Course.find({ teacher: req.user.id }).distinct("_id");
+
+    const attempts = await QuizAttempt.find({
+      course: { $in: teacherCourses }
+    })
+    .populate("student", "name email")
+    .populate("course", "title")
+    .sort({ createdAt: -1 });
+
+    res.json(attempts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};

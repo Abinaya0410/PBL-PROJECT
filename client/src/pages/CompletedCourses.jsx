@@ -20,7 +20,7 @@ export default function CompletedCourses() {
   const fetchCompletedCourses = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/course-progress/completed", {
+      const res = await fetch("http://localhost:5000/api/courses/my-completed", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -58,7 +58,7 @@ export default function CompletedCourses() {
             </div>
             <div>
                <h3 className="text-2xl font-black uppercase tracking-tight mb-2">No Certifications Yet</h3>
-               <p className="text-sm text-gray-500 italic max-w-sm">Complete all lessons and pass the final quiz in a course to see it here.</p>
+               <p className="text-sm text-gray-600 dark:text-gray-500 italic max-w-sm">Complete all lessons and pass the final quiz in a course to see it here.</p>
             </div>
           </div>
         ) : (

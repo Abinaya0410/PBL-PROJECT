@@ -46,14 +46,14 @@
 //             {teacherInitial}
 //           </div>
 
-//           <p className="text-xs text-gray-400">
+//           <p className="text-xs text-gray-600 dark:text-gray-500 dark:text-gray-400">
 //             {course.teacher?.name || "Instructor"}
 //           </p>
 
 //         </div>
 
 //         {/* Progress Section */}
-//         <div className="flex justify-between text-xs text-gray-400 mb-1">
+//         <div className="flex justify-between text-xs text-gray-600 dark:text-gray-500 dark:text-gray-400 mb-1">
 //           <span>Progress</span>
 //           <span>{progress}%</span>
 //         </div>
@@ -92,10 +92,9 @@ export default function CourseCard({ course }) {
     course.teacher?.name?.charAt(0).toUpperCase() || "T";
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02, y: -3 }}
-      transition={{ duration: 0.2 }}
-      className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden shadow-md hover:shadow-violet-500/20 transition"
+    <div
+      onClick={() => navigate(`/student-course/${course._id}`)}
+      className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden shadow-md hover-lift cursor-pointer"
     >
       {/* Course Image */}
       <div className="relative">
@@ -126,14 +125,14 @@ export default function CourseCard({ course }) {
             {teacherInitial}
           </div>
 
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-600 dark:text-gray-500 dark:text-gray-400">
             {course.teacher?.name || "Instructor"}
           </p>
 
         </div>
 
         {/* Progress Section */}
-        <div className="flex justify-between text-xs text-gray-400 mb-1">
+        <div className="flex justify-between text-xs text-gray-600 dark:text-gray-500 dark:text-gray-400 mb-1">
           <span>Progress</span>
           <span>{progress}%</span>
         </div>

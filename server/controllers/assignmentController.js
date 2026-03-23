@@ -1,10 +1,12 @@
-
-
 const Assignment = require("../models/Assignment");
 const Announcement = require("../models/Announcement");
 const AssignmentSubmission = require("../models/AssignmentSubmission");
 const User = require("../models/User");
 const Course = require("../models/Course");
+const Notification = require("../models/Notification");
+const QuizAttempt = require("../models/QuizAttempt");
+const Lesson = require("../models/Lesson");
+const LessonProgress = require("../models/LessonProgress");
 const { evaluateCourseCompletion } = require("../services/completionHelper");
 
 // // ===============================
@@ -118,6 +120,24 @@ exports.submitAssignment = async (req, res) => {
       return res.status(404).json({ message: "Assignment not found" });
     }
 
+    // ENFORCE MODULE COMPLETION BEFORE SUBMISSION
+    const courseLessons = await Lesson.find({ course: assignment.course }, "_id");
+    const totalModules = courseLessons.length;
+    
+    if (totalModules > 0) {
+      const completedModules = await LessonProgress.countDocuments({
+        student: req.user.id,
+        lesson: { $in: courseLessons.map(l => l._id) },
+        completed: true
+      });
+
+      if (completedModules < totalModules) {
+        return res.status(403).json({
+          message: "Please complete all course modules before submitting the assignment."
+        });
+      }
+    }
+
     const submissionUrl = `assignments/${req.file.filename}`;
 
     // prevent multiple submissions
@@ -135,6 +155,7 @@ exports.submitAssignment = async (req, res) => {
     const submission = await AssignmentSubmission.create({
       assignment: assignmentId,
       student: req.user.id,
+      course: assignment.course, // ✅ Added course ID
       submissionUrl,
     });
 
@@ -168,17 +189,56 @@ exports.submitAssignment = async (req, res) => {
 // ===============================
 exports.getSubmissions = async (req, res) => {
   try {
-
     const submissions = await AssignmentSubmission.find({
       assignment: req.params.assignmentId,
     })
       .populate("student", "name email")
+      .populate("assignment", "title")
       .sort({ createdAt: -1 });
 
     res.json(submissions);
-
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ===============================
+// TEACHER VIEW ALL SUBMISSIONS
+// ===============================
+exports.getTeacherAllSubmissions = async (req, res) => {
+  try {
+    const teacherCourses = await Course.find({ teacher: req.user.id }).distinct("_id");
+    
+    const submissions = await AssignmentSubmission.find({
+      course: { $in: teacherCourses }
+    })
+      .populate("student", "name email")
+      .populate("assignment", "title")
+      .populate("course", "title")
+      .sort({ createdAt: -1 });
+
+    res.json(submissions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ===============================
+// GET PENDING SUBMISSIONS COUNT
+// ===============================
+exports.getPendingSubmissionsCount = async (req, res) => {
+  try {
+    const teacherCourses = await Course.find({ teacher: req.user.id }).distinct("_id");
+    
+    const count = await AssignmentSubmission.countDocuments({
+      course: { $in: teacherCourses },
+      status: "submitted"
+    });
+
+    res.json({ count });
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -244,10 +304,17 @@ exports.gradeSubmission = async (req, res) => {
       $inc: { points: pointsToAward }
     });
 
-    // 🔄 Sync Course Completion
+    // 🔄 Sync Course Completion & Notify Student
     const assignmentObj = await Assignment.findById(submission.assignment);
     if (assignmentObj) {
       await evaluateCourseCompletion(submission.student, assignmentObj.course);
+      
+      await Notification.create({
+        recipient: submission.student,
+        message: `Your assignment '${assignmentObj.title}' has been graded.`,
+        type: "assignment_graded",
+        link: `/student-course/${assignmentObj.course}`
+      });
     }
 
     res.json(submission);
@@ -365,5 +432,27 @@ exports.updateAssignment = async (req, res) => {
       message: "Failed to update assignment"
     });
 
+  }
+};
+
+// ===============================
+// TEACHER VIEW ALL QUIZ ATTEMPTS
+// ===============================
+exports.getTeacherQuizAttempts = async (req, res) => {
+  try {
+    const teacherCourses = await Course.find({ teacher: req.user.id }).distinct("_id");
+    
+    const attempts = await QuizAttempt.find({
+      course: { $in: teacherCourses }
+    })
+      .populate("student", "name email")
+      .populate("course", "title")
+      .populate("lesson", "title")
+      .sort({ createdAt: -1 });
+
+    res.json(attempts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
 };

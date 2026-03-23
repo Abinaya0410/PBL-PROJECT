@@ -140,7 +140,7 @@ export default function QuizAttempts() {
                   <BookOpen size={24} />
                 </div>
                 <h3 className="text-xl font-black uppercase tracking-tight mb-2 group-hover:text-indigo-500 transition-colors text-[var(--foreground)]">{title}</h3>
-                <p className="text-xs text-gray-500 font-bold">{grouped[title].length} Attempts Recorded</p>
+                <p className="text-xs text-gray-600 dark:text-gray-500 font-bold">{grouped[title].length} Attempts Recorded</p>
                 <div className="mt-8 flex items-center gap-2 text-indigo-500 font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
                   View History <ChevronRight size={14} />
                 </div>
@@ -161,7 +161,7 @@ export default function QuizAttempts() {
                   </div>
                   <div>
                     <p className="font-black text-lg uppercase tracking-tight group-hover:text-indigo-500 text-[var(--foreground)]">Attempt #{grouped[selectedCourse].length - index}</p>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase flex items-center gap-1">
+                    <p className="text-[10px] font-bold text-gray-600 dark:text-gray-500 uppercase flex items-center gap-1">
                       <Calendar size={12}/> {new Date(attempt.createdAt).toLocaleDateString()}
                     </p>
                   </div>

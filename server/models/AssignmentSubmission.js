@@ -8,6 +8,12 @@ const assignmentSubmissionSchema = new mongoose.Schema(
       required: true,
     },
 
+    course: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+      required: true,
+    },
+
     student: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -61,7 +61,7 @@ export default function MyCoursesStudent() {
             </div>
             <div>
                <h3 className="text-2xl font-black uppercase tracking-tight mb-2">No Active Courses</h3>
-               <p className="text-sm text-gray-500 italic max-w-sm">
+               <p className="text-sm text-gray-600 dark:text-gray-500 italic max-w-sm">
                  {courses.length > 0 
                    ? "Everything is complete! Check your certificates in the Completed section." 
                    : "You haven't enrolled in any courses yet. Visit the Explore page to get started."}
@@ -87,18 +87,18 @@ export default function MyCoursesStudent() {
                       <GraduationCap size={24} />
                    </div>
                    <div className="text-right">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Progress</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400">Progress</p>
                       <p className="text-xl font-black text-indigo-500">{course.progress || 0}%</p>
                    </div>
                 </div>
 
                 <div className="flex-1 space-y-3 mb-8">
                    <h3 className="text-xl font-black uppercase tracking-tight group-hover:text-indigo-500 transition-colors leading-tight">{course.title}</h3>
-                   <p className="text-xs text-gray-500 font-bold italic line-clamp-2 leading-relaxed opacity-80">{course.description}</p>
+                   <p className="text-xs text-gray-600 dark:text-gray-500 font-bold italic line-clamp-2 leading-relaxed opacity-80">{course.description}</p>
                 </div>
 
                 <div className="space-y-6 pt-6 border-t border-[var(--border)]">
-                   <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-400">
+                   <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400">
                       <span className="flex items-center gap-1.5"><Clock size={12}/> ACTIVE</span>
                       <span className="text-indigo-500">{course.progress || 0}%</span>
                    </div>

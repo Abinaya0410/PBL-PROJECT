@@ -83,148 +83,119 @@ export default function AddAssignment() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] p-6 md:p-10 lg:p-16 flex items-center justify-center">
-      
-      <div className="w-full max-w-2xl animate-in zoom-in-95 duration-500">
-        
-        {/* Navigation */}
-        <button 
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-emerald-600 hover:text-emerald-500 mb-8 transition-all font-black uppercase tracking-tighter text-sm"
-        >
-          <ChevronLeft size={18} />
-          Cancel and Return
-        </button>
+    <div className="p-8 lg:p-12 flex justify-center items-start min-h-[calc(100vh-80px)]">
+      <div className="w-full max-w-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
 
-        <div className="glass-card overflow-hidden">
-          {/* Form Header */}
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-700 p-10 text-white relative">
-             <div className="relative z-10">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/20 mb-6 font-bold shadow-lg">
-                  <Plus size={32}/>
-                </div>
-                <h1 className="text-4xl font-black tracking-tight mb-2 uppercase">Publish Task</h1>
-                <p className="text-white/70 font-medium">Create a new assignment and notify all enrolled students.</p>
+        <div className="relative z-10">
+          <div className="mb-10 flex justify-between items-start">
+             <div>
+               <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Add Assignment</h2>
+               <p className="text-slate-500 dark:text-slate-400 font-medium italic mt-2">Initialize a new academic challenge for this course.</p>
              </div>
-             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+             <button 
+                onClick={() => navigate(`/teacher/course/${id}`)}
+                className="text-slate-500 dark:text-slate-400 hover:text-rose-500 transition-colors"
+                title="Abort Mission"
+             >
+               <ChevronLeft size={32} />
+             </button>
           </div>
 
-          <div className="p-10 space-y-8">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {message && (
-              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 p-5 rounded-2xl flex items-center gap-4 animate-in slide-in-from-left-4">
-                <CheckCircle size={20} />
-                <p className="font-bold">{message}</p>
+              <div className="md:col-span-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 p-4 rounded-2xl text-center font-black uppercase tracking-widest text-xs animate-pulse">
+                {message} ✓
               </div>
             )}
 
             {error && (
-              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-600 p-5 rounded-2xl flex items-center gap-4 animate-in slide-in-from-left-4">
-                <AlertCircle size={20} />
-                <p className="font-bold">{error}</p>
+              <div className="md:col-span-2 bg-rose-500/10 border border-rose-500/20 text-rose-500 p-4 rounded-2xl text-center font-black uppercase tracking-widest text-xs">
+                {error} ⚠
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Title Section */}
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">
-                  <FileText size={14}/> 
-                  Assignment Title
-                </label>
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Assignment Title</label>
+              <div className="relative">
+                <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-300 dark:text-slate-600" size={18} />
                 <input
                   type="text"
                   required
-                  placeholder="e.g., Introduction to Cloud Systems"
+                  placeholder="Assignment Title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-[var(--background)] p-5 rounded-2xl border-2 border-[var(--border)] focus:border-emerald-500 outline-none transition-all font-bold text-lg"
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-black text-slate-900 dark:text-white"
                 />
               </div>
+            </div>
 
-              {/* Description Section */}
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">
-                  <AlignLeft size={14}/> 
-                  Task Description
-                </label>
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Assignment Description</label>
+              <div className="relative">
+                <AlignLeft className="absolute left-4 top-4 text-slate-400 dark:text-slate-300 dark:text-slate-600" size={18} />
                 <textarea
                   required
-                  rows="4"
-                  placeholder="Detailed instructions for students..."
+                  placeholder="Define the instructional parameters and expected outcomes..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-[var(--background)] p-5 rounded-2xl border-2 border-[var(--border)] focus:border-emerald-500 outline-none transition-all font-medium leading-relaxed"
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-medium h-32 text-slate-900 dark:text-white"
                 />
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Due Date Section */}
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">
-                    <Calendar size={14}/> 
-                    Submission Deadline
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full bg-[var(--background)] p-5 rounded-2xl border-2 border-[var(--border)] focus:border-emerald-500 outline-none transition-all font-bold"
-                  />
-                </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Due Date</label>
+              <div className="relative">
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-300 dark:text-slate-600" size={18} />
+                <input
+                  type="date"
+                  required
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-black text-slate-900 dark:text-white"
+                />
+              </div>
+            </div>
 
-                {/* File Upload Section */}
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">
-                    <Upload size={14}/> 
-                    Task Resource (PDF)
-                  </label>
-                  <div className="relative group">
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      required
-                      onChange={(e) => setPdf(e.target.files[0])}
-                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                    />
-                    <div className="w-full bg-[var(--background)] p-5 rounded-2xl border-2 border-dashed border-[var(--border)] group-hover:border-emerald-500 transition-all flex items-center gap-4 min-h-[72px]">
-                       <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-emerald-600">
-                          <FileText size={18}/>
-                       </div>
-                       <p className="text-xs font-bold text-gray-500 truncate italic">
-                         {pdf ? pdf.name : "Choose PDF file..."}
-                       </p>
-                    </div>
-                  </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Upload Assignment File (PDF)</label>
+              <div className="relative group">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  required
+                  onChange={(e) => setPdf(e.target.files[0])}
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                />
+                <div className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-800 group-hover:border-emerald-500 transition-all flex items-center gap-3">
+                   <div className="p-2 bg-white dark:bg-slate-800 rounded-lg text-emerald-500 shadow-sm">
+                      <Upload size={16}/>
+                   </div>
+                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">
+                     {pdf ? pdf.name : "Initialize Upload"}
+                   </p>
                 </div>
               </div>
+            </div>
 
+            <div className="md:col-span-2 pt-6">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-16 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl transition-all font-black tracking-[0.2em] shadow-xl shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
+                className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
               >
                 {loading ? (
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                    PUBLISHING...
-                  </div>
+                  <div className="w-5 h-5 border-2 border-slate-400 border-t-slate-900 rounded-full animate-spin"></div>
                 ) : (
-                  <>
-                    <Layout size={20}/>
-                    PUBLISH ASSIGNMENT
-                  </>
+                  <Layout size={18}/>
                 )}
+                {loading ? "Synchronizing..." : "Publish Assignment"}
               </button>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
-
-        <p className="text-center text-gray-500 text-[10px] mt-8 font-bold uppercase tracking-widest">
-          Secure Educational Portal • Virtual Academic Intelligence Hub
-        </p>
       </div>
-
     </div>
   );
 }

@@ -189,71 +189,102 @@ export default function EditLesson() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
-        Loading lesson...
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+           <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
+           <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Loading Module Data...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-10">
-      <div className="max-w-3xl mx-auto bg-slate-800 p-8 rounded-2xl shadow-xl">
-        <h2 className="text-3xl font-bold mb-6 text-cyan-400">
-          Edit Lesson
-        </h2>
+    <div className="p-8 lg:p-12 flex justify-center items-start min-h-[calc(100vh-80px)]">
+      <div className="w-full max-w-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
 
-        {success && (
-          <div className="bg-green-500/20 border border-green-500 p-4 rounded-lg mb-4">
-            Lesson updated successfully!
+        <div className="relative z-10">
+          <div className="mb-10">
+             <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Refactor Module</h2>
+             <p className="text-slate-500 dark:text-slate-400 font-medium italic mt-2">Adjust the instructional parameters for this curriculum element.</p>
           </div>
-        )}
 
-        <input
-          name="title"
-          value={lesson.title}
-          onChange={handleChange}
-          placeholder="Lesson Title"
-          className="w-full p-3 mb-4 bg-slate-700 rounded"
-        />
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Module Identification</label>
+              <input
+                name="title"
+                placeholder="Operational Title"
+                value={lesson.title}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-black"
+                required
+              />
+            </div>
 
-        <textarea
-          name="description"
-          value={lesson.description}
-          onChange={handleChange}
-          placeholder="Lesson Description"
-          className="w-full p-3 mb-4 bg-slate-700 rounded"
-        />
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Contextual Overview</label>
+              <textarea
+                name="description"
+                placeholder="Briefly define the instructional scope..."
+                value={lesson.description}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-medium h-24"
+              />
+            </div>
 
-        <textarea
-          name="textContent"
-          value={lesson.textContent}
-          onChange={handleChange}
-          placeholder="Text Content"
-          className="w-full p-3 mb-4 bg-slate-700 rounded"
-        />
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Curriculum Content (Notes)</label>
+              <textarea
+                name="textContent"
+                placeholder="Deep dive into the academic details..."
+                value={lesson.textContent}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-medium h-60"
+              />
+            </div>
 
-        <input
-          name="videoUrl"
-          value={lesson.videoUrl}
-          onChange={handleChange}
-          placeholder="Video URL"
-          className="w-full p-3 mb-4 bg-slate-700 rounded"
-        />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Instructional Video Node</label>
+              <input
+                name="videoUrl"
+                placeholder="YouTube Archive URL"
+                value={lesson.videoUrl}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-medium"
+              />
+            </div>
 
-        <input
-          type="number"
-          name="order"
-          value={lesson.order}
-          onChange={handleChange}
-          className="w-full p-3 mb-6 bg-slate-700 rounded"
-        />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Sequence Position</label>
+              <input
+                type="number"
+                name="order"
+                placeholder="Module Priority"
+                value={lesson.order}
+                onChange={handleChange}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-black text-center"
+                required
+              />
+            </div>
 
-        <button
-          onClick={handleUpdate}
-          className="bg-cyan-500 px-6 py-3 rounded-lg font-semibold hover:bg-cyan-400"
-        >
-          Update Lesson
-        </button>
+            {success && (
+              <div className="md:col-span-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 p-4 rounded-2xl text-center font-black uppercase tracking-widest text-xs animate-pulse">
+                Module Re-Architected Successfully ✓
+              </div>
+            )}
+
+            <div className="md:col-span-2 pt-6">
+              <button 
+                type="button"
+                onClick={handleUpdate}
+                className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition-all shadow-xl active:scale-95"
+              >
+                Sync Changes
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

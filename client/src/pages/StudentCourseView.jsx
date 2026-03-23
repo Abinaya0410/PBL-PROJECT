@@ -148,7 +148,7 @@ export default function StudentCourseView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-300">
         <div className="flex flex-col items-center gap-4">
            <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
            <p className="text-[10px] font-black uppercase tracking-widest text-[var(--secondary)] animate-pulse">Checking Permissions...</p>
@@ -157,12 +157,36 @@ export default function StudentCourseView() {
     );
   }
 
+  if (!course) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="glass-card p-16 max-w-md w-full space-y-8 border-dashed border-2 flex flex-col items-center">
+          <div className="w-20 h-20 bg-indigo-500/10 text-indigo-500 rounded-3xl flex items-center justify-center shadow-inner">
+             <Lock size={40} />
+          </div>
+          <div className="space-y-2">
+             <h3 className="text-2xl font-black uppercase tracking-tight">Access Restricted</h3>
+             <p className="text-sm text-gray-600 dark:text-gray-500 italic leading-relaxed">
+               You must enroll in this course first to access its curriculum and learning materials.
+             </p>
+          </div>
+          <button 
+            onClick={() => navigate("/available-courses")}
+            className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-500/20 hover:bg-indigo-500 transition-all"
+          >
+            Go to Explore Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-6 md:p-10 lg:p-16">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 lg:p-16 transition-colors duration-300">
       <div className="max-w-6xl mx-auto space-y-12">
         
         {/* HEADER SECTION */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-10 border-b border-[var(--border)]">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-10 border-b border-slate-200 dark:border-slate-800">
           <div className="space-y-4">
             <button 
               onClick={() => navigate('/student-dashboard')}
@@ -201,7 +225,7 @@ export default function StudentCourseView() {
                 {lessons.map((lesson, idx) => (
                   <div 
                     key={lesson._id}
-                    className="glass-card p-6 border-l-4 border-l-indigo-500 flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between group cursor-pointer hover:border-indigo-400 hover:-translate-y-1 transition-all"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 border-l-4 border-l-indigo-500 rounded-3xl flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between group cursor-pointer hover:border-indigo-400 hover:-translate-y-1 transition-all shadow-lg"
                     onClick={() => navigate(`/student-lesson/${lesson._id}`)}
                   >
                     <div className="flex items-center gap-5">
@@ -209,8 +233,8 @@ export default function StudentCourseView() {
                         {idx + 1}
                       </div>
                       <div>
-                        <h4 className="font-black text-lg uppercase tracking-tight">{lesson.title}</h4>
-                        <p className="text-sm text-[var(--secondary)] font-bold italic line-clamp-1">{lesson.description}</p>
+                        <h4 className="font-black text-lg uppercase tracking-tight text-slate-900 dark:text-white">{lesson.title}</h4>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-bold italic line-clamp-1">{lesson.description}</p>
                       </div>
                     </div>
                     
@@ -224,7 +248,7 @@ export default function StudentCourseView() {
 
             {/* FINAL ASSESSMENT OR ACHIEVEMENT BOX */}
             {course?.completed ? (
-              <section className="glass-card p-10 border-2 border-emerald-500/30 relative overflow-hidden bg-gradient-to-br from-emerald-500/5 to-transparent shadow-2xl shadow-emerald-500/10 group/achievement">
+              <section className="bg-white dark:bg-slate-900 border-2 border-emerald-500/30 p-10 rounded-[3rem] relative overflow-hidden bg-gradient-to-br from-emerald-500/5 to-transparent shadow-2xl shadow-emerald-500/10 group/achievement">
                 <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover/achievement:opacity-10 transition-opacity">
                    <Award size={160} className="text-emerald-500" />
                 </div>
@@ -234,21 +258,21 @@ export default function StudentCourseView() {
                     <div className="flex items-center gap-3 text-emerald-500 font-black uppercase tracking-widest text-[10px]">
                       <Award size={16} /> Achievement Unlocked
                     </div>
-                    <h3 className="text-4xl font-black uppercase tracking-tight leading-none">Academic Excellence</h3>
-                    <p className="text-sm text-[var(--secondary)] font-bold italic opacity-80 max-w-lg">You have successfully mastered this domain. Your academic record has been updated with your final performance metrics.</p>
+                    <h3 className="text-4xl font-black uppercase tracking-tight leading-none text-slate-900 dark:text-white">Academic Excellence</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-bold italic opacity-80 max-w-lg">You have successfully mastered this domain. Your academic record has been updated with your final performance metrics.</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="glass-card p-6 bg-[var(--background)] flex flex-col items-center justify-center text-center space-y-2 border-emerald-500/10">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Final Grade</p>
+                    <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col items-center justify-center text-center space-y-2">
+                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Final Grade</p>
                        <p className="text-4xl font-black text-emerald-500">{achievement?.score || 100}%</p>
                     </div>
-                    <div className="glass-card p-6 bg-[var(--background)] flex flex-col items-center justify-center text-center space-y-2 border-emerald-500/10">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Completion Date</p>
-                       <p className="text-lg font-black">{achievement ? new Date(achievement.createdAt).toLocaleDateString() : 'Today'}</p>
+                    <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col items-center justify-center text-center space-y-2">
+                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Completion Date</p>
+                       <p className="text-lg font-black text-slate-900 dark:text-white">{achievement ? new Date(achievement.createdAt).toLocaleDateString() : 'Today'}</p>
                     </div>
-                    <div className="glass-card p-6 bg-[var(--background)] flex flex-col items-center justify-center text-center space-y-2 border-emerald-500/10">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Validation</p>
+                    <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col items-center justify-center text-center space-y-2">
+                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Validation</p>
                        <p className="text-[10px] font-black uppercase tracking-tight text-emerald-500">Verified System</p>
                     </div>
                   </div>
@@ -296,7 +320,7 @@ export default function StudentCourseView() {
                   className={`w-full py-6 rounded-3xl font-black text-sm uppercase tracking-[0.2em] transition-all relative z-10 overflow-hidden group/btn ${
                     quizUnlocked 
                       ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-2xl shadow-indigo-500/40 hover:-translate-y-1 active:scale-95' 
-                      : 'bg-gray-100 dark:bg-slate-800 text-gray-400 cursor-not-allowed italic'
+                      : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-500 dark:text-gray-400 cursor-not-allowed italic'
                   }`}
                 >
                   {quizUnlocked ? (
@@ -354,7 +378,7 @@ export default function StudentCourseView() {
                <div className="space-y-4">
                  {announcements.length === 0 ? (
                    <div className="glass-card p-8 text-center border-dashed border">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 italic">No announcements yet</p>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-500 dark:text-gray-400 italic">No announcements yet</p>
                    </div>
                  ) : (
                    announcements.slice(0, 3).map((ann, i) => (
@@ -363,7 +387,7 @@ export default function StudentCourseView() {
                            <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">{ann.type || 'Notice'}</span>
                         </div>
                         <p className="text-xs font-bold leading-relaxed italic opacity-90">"{ann.message}"</p>
-                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-3 text-right">Sent by Instructor</p>
+                        <p className="text-[8px] font-black text-gray-600 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-3 text-right">Sent by Instructor</p>
                      </div>
                    ))
                  )}
@@ -389,8 +413,8 @@ function RequirementItem({ done, label, text }) {
         <CheckCircle size={18}/>
       </div>
       <div className="min-w-0">
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 leading-none mb-1.5">{label}</p>
-        <p className={`text-xs font-black uppercase tracking-tight truncate ${done ? 'text-emerald-500' : 'text-gray-500'}`}>{text}</p>
+        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-600 dark:text-gray-500 dark:text-gray-400 leading-none mb-1.5">{label}</p>
+        <p className={`text-xs font-black uppercase tracking-tight truncate ${done ? 'text-emerald-500' : 'text-gray-600 dark:text-gray-500'}`}>{text}</p>
       </div>
     </div>
   );

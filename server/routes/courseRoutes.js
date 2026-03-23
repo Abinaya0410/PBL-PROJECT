@@ -1,18 +1,17 @@
-
 const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../middleware/authMiddleware");
 const { isStudent, isTeacher } = require("../middleware/roleMiddleware");
-const { getEnrolledCourses, getAnnouncements } = require("../controllers/courseController");
-
-
 
 const {
   createCourse,
   getAllCourses,
   enrollCourse,
   getTeacherCourses,
+  getEnrolledCourses,
+  getCompletedCourses,
+  getAnnouncements,
   updateCourse,
   deleteCourse,
   getMyAnnouncements,
@@ -52,6 +51,7 @@ router.delete("/:id", authMiddleware, isTeacher, deleteCourse);
 // Student enrolled courses
 // =======================
 router.get("/my", authMiddleware, isStudent, getEnrolledCourses);
+router.get("/my-completed", authMiddleware, isStudent, getCompletedCourses);
 router.get("/completed/:courseId/review", authMiddleware, isStudent, require("../controllers/courseController").getCompletedCourseReview);
 router.get("/my-announcements", authMiddleware, isStudent, getMyAnnouncements);
 
