@@ -16,8 +16,14 @@ export default function AddLesson() {
     order: "",
   });
 
+  const [pdfFile, setPdfFile] = useState(null);
+
   const handleChange = (e) => {
     setLesson({ ...lesson, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setPdfFile(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
@@ -26,18 +32,24 @@ export default function AddLesson() {
     try {
       const token = localStorage.getItem("token");
 
+      const formData = new FormData();
+      formData.append("title", lesson.title);
+      formData.append("description", lesson.description);
+      formData.append("textContent", lesson.textContent);
+      formData.append("videoUrl", lesson.videoUrl);
+      formData.append("order", Number(lesson.order));
+      if (pdfFile) {
+        formData.append("pdf", pdfFile);
+      }
+
       const res = await fetch(
         `http://localhost:5000/api/courses/${id}/lessons`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            ...lesson,
-            order: Number(lesson.order),
-          }),
+          body: formData,
         }
       );
 
@@ -143,6 +155,22 @@ export default function AddLesson() {
                 className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-black text-center"
                 required
               />
+            </div>
+
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Upload PDF Material (Optional)</label>
+              <div className="relative group/file">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <div className="w-full p-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center gap-2 group-hover/file:border-cyan-500/50 transition-all bg-slate-50/50 dark:bg-slate-800/20">
+                   <p className="text-xs font-bold text-slate-500">{pdfFile ? pdfFile.name : "Click or drag PDF here"}</p>
+                   <p className="text-[10px] text-slate-400 uppercase font-black tracking-tighter">{pdfFile ? "File Selected" : "Max size 10MB"}</p>
+                </div>
+              </div>
             </div>
 
             {success && (

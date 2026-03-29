@@ -37,9 +37,11 @@ export default function MyCoursesStudent() {
     }
   };
 
-  const filteredCourses = courses.filter(c => 
-    c.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCourses = courses.filter(c => {
+    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const isCompleted = c.completed === true || (c.progress || 0) >= 100;
+    return matchesSearch && !isCompleted;
+  });
 
   return (
     <div className="p-8 lg:p-12 space-y-10">

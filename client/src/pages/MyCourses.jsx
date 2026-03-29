@@ -21,17 +21,25 @@ export default function MyCourses() {
   const { isDark } = useTheme();
 
   useEffect(() => {
+    console.log("MyCourses Loaded");
     fetchCourses();
   }, []);
 
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/courses/teacher", {
+      const res = await fetch("/api/courses/teacher", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      setCourses(data);
+      console.log("MyCourses API Response:", data);
+      
+      if (Array.isArray(data)) {
+        setCourses(data);
+      } else {
+        console.error("API Error: Expected array but received:", data);
+        setCourses([]);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -39,9 +47,9 @@ export default function MyCourses() {
     }
   };
 
-  const filteredCourses = courses.filter(course => 
-    course.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCourses = Array.isArray(courses) ? courses.filter(course => 
+    course?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+  ) : [];
 
   if (loading) {
     return (

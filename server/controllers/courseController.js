@@ -1,4 +1,4 @@
-
+const mongoose = require("mongoose");
 const Course = require("../models/Course");
 const Lesson = require("../models/Lesson");
 const LessonProgress = require("../models/LessonProgress");
@@ -8,6 +8,7 @@ const AssignmentSubmission = require("../models/AssignmentSubmission");
 const Quiz = require("../models/Quiz");
 const QuizAttempt = require("../models/QuizAttempt");
 const Announcement = require("../models/Announcement");
+const User = require("../models/User");
 
 // =======================
 // CREATE COURSE (Teacher)
@@ -79,14 +80,23 @@ const enrollCourse = async (req, res) => {
 // =======================
 const getTeacherCourses = async (req, res) => {
   try {
-    const courses = await Course.find({ teacher: req.user.id })
-      .populate("teacher", "name email");
+    const courses = await Course.find({ 
+      $or: [
+        { teacher: req.user.id },
+        { teacher: new mongoose.Types.ObjectId(req.user.id) }
+      ]
+    }).populate("teacher", "name email");
+
+    console.log(`[DEBUG] Teacher Courses: Found ${courses.length} courses for teacher ${req.user.id}`);
 
     const coursesWithStats = await Promise.all(
       courses.map(async (course) => {
-        const lessonsCount = await Lesson.countDocuments({ course: course._id });
-        const assignmentsCount = await Assignment.countDocuments({ course: course._id });
-        const quizzesCount = await Quiz.countDocuments({ course: course._id });
+        const cId = course._id;
+        const cIdStr = course._id.toString();
+        
+        const lessonsCount = await Lesson.countDocuments({ course: { $in: [cId, cIdStr] } });
+        const assignmentsCount = await Assignment.countDocuments({ course: { $in: [cId, cIdStr] } });
+        const quizzesCount = await Quiz.countDocuments({ course: { $in: [cId, cIdStr] } });
         
         return {
           ...course.toObject(),
@@ -198,8 +208,7 @@ const getEnrolledCourses = async (req, res) => {
     }).distinct("course");
 
     const courses = await Course.find({
-      enrolledStudents: req.user.id,
-      _id: { $nin: completedCourseIds }
+      enrolledStudents: req.user.id
     }).populate("teacher", "name email");
 
     const coursesWithProgress = await Promise.all(

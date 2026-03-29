@@ -74,16 +74,16 @@ export default function LearnerXP() {
       </div>
 
       {/* ── SECTION 1: TOTAL POINTS ── */}
-      <div className="glass-card p-12 text-center bg-gradient-to-br from-indigo-600/15 to-purple-600/5 border-indigo-500/20 relative overflow-hidden">
+      <div className="glass-card p-8 py-10 text-center bg-gradient-to-br from-indigo-600/15 to-purple-600/5 border-indigo-500/20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
         <div className="relative">
-          <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-indigo-500/30 mx-auto mb-6">
-            <Trophy size={36} className="text-white" />
+          <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-500/30 mx-auto mb-4">
+            <Trophy size={28} className="text-white" />
           </div>
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-2">Total Score</p>
-          <h2 className="text-7xl font-black text-white leading-none">
+          <h2 className="text-5xl font-black text-slate-900 dark:text-white leading-none">
             {totalXP}
-            <span className="text-3xl text-gray-600 dark:text-gray-500 ml-3 font-bold">pts</span>
+            <span className="text-2xl text-slate-500 dark:text-slate-400 ml-3 font-bold">pts</span>
           </h2>
         </div>
       </div>
@@ -97,8 +97,8 @@ export default function LearnerXP() {
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Assignment Points</p>
-            <p className="text-4xl font-black text-white">{assignmentXP}<span className="text-lg text-gray-600 dark:text-gray-500 ml-2">pts</span></p>
-            <p className="text-[10px] font-bold text-gray-600 dark:text-gray-500 mt-1">+50 pts per submission</p>
+            <p className="text-4xl font-black text-slate-900 dark:text-white">{assignmentXP}<span className="text-lg text-slate-500 dark:text-slate-400 ml-2">pts</span></p>
+            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1">+50 pts per submission</p>
           </div>
         </div>
 
@@ -109,8 +109,8 @@ export default function LearnerXP() {
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-amber-400 mb-1">Quiz Efficiency</p>
-            <p className="text-4xl font-black text-white">{quizXP}<span className="text-lg text-gray-600 dark:text-gray-500 ml-2">pts</span></p>
-            <p className="text-[10px] font-bold text-gray-600 dark:text-gray-500 mt-1">Fewer attempts = more pts</p>
+            <p className="text-4xl font-black text-slate-900 dark:text-white">{quizXP}<span className="text-lg text-slate-500 dark:text-slate-400 ml-2">pts</span></p>
+            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1">Fewer attempts = more pts</p>
           </div>
         </div>
       </div>
@@ -175,7 +175,7 @@ export default function LearnerXP() {
 function EmptyState({ message }) {
   return (
     <div className="glass-card p-10 text-center border-dashed border-2">
-      <p className="text-sm font-bold text-gray-600 dark:text-gray-500 italic">{message}</p>
+      <p className="text-sm font-bold text-slate-500 dark:text-slate-400 italic">{message}</p>
     </div>
   );
 }

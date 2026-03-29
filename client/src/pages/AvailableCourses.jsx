@@ -115,7 +115,7 @@ export default function AvailableCourses() {
                         {course.description}
                       </p>
 
-                      <div className="pt-4 flex items-center justify-between border-t border-[var(--border)]">
+                      <div className="pt-4 flex items-center justify-between gap-4 border-t border-[var(--border)]">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
                              <User size={14} className="text-slate-500" />

@@ -18,7 +18,8 @@ const {
   getStudentAnalytics,
   getTeacherAnalytics,
   getCourseAnalytics,
-  getStudentDashboardStats
+  getStudentDashboardStats,
+  getEngagementAnalytics
 } = require("../controllers/analyticsController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -30,6 +31,7 @@ router.get("/student-stats", authMiddleware, isStudent, getStudentDashboardStats
 
 // 🔐 Teacher Analytics
 router.get("/teacher", authMiddleware, isTeacher, getTeacherAnalytics);
+router.get("/engagement", authMiddleware, isTeacher, getEngagementAnalytics);
 
 // 🔐 Course Specific Analytics (Teacher)
 router.get("/course/:courseId", authMiddleware, isTeacher, getCourseAnalytics);

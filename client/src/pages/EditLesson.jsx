@@ -118,7 +118,10 @@ export default function EditLesson() {
     textContent: "",
     videoUrl: "",
     order: 1,
+    pdfUrl: "",
   });
+
+  const [pdfFile, setPdfFile] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
@@ -148,6 +151,7 @@ export default function EditLesson() {
         textContent: data.textContent || "",
         videoUrl: data.videoUrl || "",
         order: data.order || 1,
+        pdfUrl: data.pdfUrl || "",
       });
 
       setLoading(false);
@@ -161,19 +165,33 @@ export default function EditLesson() {
     setLesson({ ...lesson, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    setPdfFile(e.target.files[0]);
+  };
+
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem("token");
+
+      const formData = new FormData();
+      formData.append("title", lesson.title);
+      formData.append("description", lesson.description);
+      formData.append("textContent", lesson.textContent);
+      formData.append("videoUrl", lesson.videoUrl);
+      formData.append("order", Number(lesson.order));
+
+      if (pdfFile) {
+        formData.append("pdf", pdfFile);
+      }
 
       await fetch(
         `http://localhost:5000/api/lessons/${lessonId}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(lesson),
+          body: formData,
         }
       );
 
@@ -266,6 +284,26 @@ export default function EditLesson() {
                 className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none transition-all font-black text-center"
                 required
               />
+            </div>
+
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-2">Update PDF Material (Optional)</label>
+              <div className="relative group/file">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <div className="w-full p-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center gap-2 group-hover/file:border-cyan-500/50 transition-all bg-slate-50/50 dark:bg-slate-800/20">
+                   <p className="text-xs font-bold text-slate-500">
+                     {pdfFile ? pdfFile.name : lesson.pdfUrl ? "Current PDF: " + lesson.pdfUrl.split('/').pop() : "Click or drag PDF here"}
+                   </p>
+                   <p className="text-[10px] text-slate-400 uppercase font-black tracking-tighter">
+                     {pdfFile || lesson.pdfUrl ? "File Available" : "Max size 10MB"}
+                   </p>
+                </div>
+              </div>
             </div>
 
             {success && (

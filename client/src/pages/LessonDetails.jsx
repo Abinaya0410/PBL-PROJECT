@@ -152,6 +152,47 @@ export default function LessonDetails() {
               </div>
             )}
 
+            {/* PDF MATERIALS SECTION */}
+            <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white">
+               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-500 flex items-center gap-2">
+                 <FileText size={16}/> Academic Material (PDF)
+               </h3>
+               
+               {lesson?.pdfUrl ? (
+                 <div className="flex flex-wrap gap-4">
+                    {(() => {
+                      const fullPdfUrl = `http://localhost:5000${lesson.pdfUrl.startsWith('/') ? '' : '/'}${lesson.pdfUrl}`;
+                      
+                      return (
+                        <>
+                          <a
+                            href={fullPdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-3 px-6 py-4 bg-white dark:bg-slate-800 border border-emerald-500/30 rounded-2xl group hover:border-emerald-500 transition-all shadow-lg shadow-emerald-500/5 font-black text-sm text-slate-900 dark:text-white"
+                          >
+                            <div className="p-2 bg-emerald-500 text-white rounded-lg shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                               <FileText size={18} />
+                            </div>
+                            View PDF Document
+                          </a>
+
+                          <a
+                            href={fullPdfUrl}
+                            download
+                            className="inline-flex items-center gap-3 px-6 py-4 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl group hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900 hover:text-white transition-all font-black text-sm text-slate-600 dark:text-slate-400"
+                          >
+                            Download Material
+                          </a>
+                        </>
+                      );
+                    })()}
+                 </div>
+               ) : (
+                 <p className="text-xs font-bold text-slate-500 italic opacity-60">No PDF material available for this unit.</p>
+               )}
+            </div>
+
             {lesson?.videoUrl && (
               <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-500 flex items-center gap-2">

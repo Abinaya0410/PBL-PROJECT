@@ -10,6 +10,7 @@ const {
 
 const authMiddleware = require("../middleware/authMiddleware");
 const { isTeacher } = require("../middleware/roleMiddleware");
+const upload = require("../middleware/lessonUploadMiddleware");
 
 // =======================
 // Teacher routes
@@ -18,6 +19,7 @@ router.post(
   "/courses/:courseId/lessons",
   authMiddleware,
   isTeacher,
+  upload.single("pdf"),
   createLesson
 );
 
@@ -25,6 +27,7 @@ router.put(
   "/lessons/:lessonId",
   authMiddleware,
   isTeacher,
+  upload.single("pdf"),
   updateLesson
 );
 

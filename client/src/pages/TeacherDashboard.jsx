@@ -46,7 +46,7 @@ export default function TeacherDashboard() {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/analytics/teacher", {
+      const res = await fetch("/api/analytics/teacher", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -65,7 +65,7 @@ export default function TeacherDashboard() {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/courses/teacher", {
+      const res = await fetch("/api/courses/teacher", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

@@ -71,12 +71,16 @@ const createLesson = async (req, res) => {
       return res.status(403).json({ message: "Not authorized" });
     }
 
+    const pdfUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    console.log("Saved PDF:", pdfUrl);
+
     const lesson = await Lesson.create({
       title,
       description,
       course: courseId,
       textContent,
       videoUrl,
+      pdfUrl,
       order,
       createdBy: req.user.id,
     });
@@ -119,6 +123,12 @@ const updateLesson = async (req, res) => {
     }
 
     Object.assign(lesson, req.body);
+    
+    if (req.file) {
+      lesson.pdfUrl = `/uploads/${req.file.filename}`;
+      console.log("Saved PDF (Update):", lesson.pdfUrl);
+    }
+
     await lesson.save();
 
     res.json(lesson);

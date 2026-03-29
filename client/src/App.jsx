@@ -38,6 +38,7 @@ import StudentLayout from "./layouts/StudentLayout";
 import TeacherLayout from "./layouts/TeacherLayout";
 import ThemeToggle from "./components/ThemeToggle";
 import CourseAnalytics from "./pages/CourseAnalytics";
+import TeacherAnalytics from "./pages/TeacherAnalytics";
 import CompleteProfile from "./pages/CompleteProfile";
 import NotFound from "./pages/NotFound";
 
@@ -81,7 +82,7 @@ function AppContent() {
             ? <TeacherDashboard /> 
             : <Login />
           } />
-          <Route path="/teacher/analytics" element={<CourseAnalytics />} />
+          <Route path="/teacher/analytics" element={<TeacherAnalytics />} />
           <Route path="/create-course" element={<CreateCourse />} />
           <Route path="/my-courses" element={<MyCourses />} />
           <Route path="/course/:id" element={<CourseBuilder />} />

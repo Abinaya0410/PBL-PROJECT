@@ -150,12 +150,9 @@ export default function StudentAnalytics() {
                 <tbody className="divide-y divide-[var(--border)]">
                   {data.coursePerformance?.map((course) => (
                     <tr key={course.courseId} className="hover:bg-[var(--card)]/30 transition-colors group">
-                      <td className="px-6 py-5">
-                         <div>
-                           <p className="font-black text-sm uppercase tracking-tight group-hover:text-indigo-500 transition-colors">{course.courseTitle}</p>
-                           <p className="text-[10px] font-bold text-[var(--secondary)] mt-1">Ref: {course.courseId.slice(-6)}</p>
-                         </div>
-                      </td>
+                       <td className="px-6 py-5">
+                          <p className="font-black text-sm uppercase tracking-tight group-hover:text-indigo-500 transition-colors">{course.courseTitle}</p>
+                       </td>
                       <td className="px-6 py-5">
                          <div className="flex items-center gap-2">
                             <span className="text-lg font-black text-[var(--foreground)]">{course.bestScore}%</span>

@@ -25,11 +25,6 @@ const StudentLayout = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
-              <Bell size={20}/>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900"></span>
-            </button>
-
             <ThemeToggle />
 
             <div className="relative">

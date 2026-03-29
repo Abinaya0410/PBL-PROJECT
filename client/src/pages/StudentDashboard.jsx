@@ -94,10 +94,8 @@ export default function StudentDashboard() {
       <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-10 text-white shadow-2xl shadow-indigo-500/20">
         <div className="relative z-10 max-w-2xl">
           <h2 className="text-4xl font-black mb-4 tracking-tight leading-tight">Keep up the momentum, {storedName}! 🚀</h2>
-          <p className="text-white/80 text-lg leading-relaxed mb-8">
-            {courses.length > 0 
-              ? `You are currently enrolled in ${courses.length} courses. Keep pushing towards your goals!`
-              : "Start your learning journey today by exploring our latest courses."}
+          <p className="text-white/80 text-lg leading-relaxed mb-8 font-medium italic opacity-90">
+            Keep pushing towards your goals!
           </p>
           <div className="flex gap-4">
             <button onClick={() => navigate("/my-courses-student")} className="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold shadow-xl hover:scale-105 transition-transform active:scale-95">
@@ -112,7 +110,7 @@ export default function StudentDashboard() {
       </section>
 
       {/* STATS */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
         <StatCard
           icon={<CheckCircle className="text-emerald-500"/>}
           label="Courses Done"
@@ -128,11 +126,12 @@ export default function StudentDashboard() {
           color="indigo"
         />
         <StatCard
-          icon={<BarChart3 className="text-violet-500"/>}
+          icon={<BarChart3 className="text-blue-500"/>}
           label="Avg Score"
-          value={`${dashboardStats?.avgScore || 0}%`}
+          value={dashboardStats?.avgScore || 0}
+          unit="pts"
           trend="Overall"
-          color="violet"
+          color="blue"
         />
       </section>
 
@@ -155,6 +154,7 @@ export default function StudentDashboard() {
               </div>
             ) : (
               courses
+                .filter(c => !c.completed && (c.progress || 0) < 100)
                 .slice(0, 3)
                 .map(course => (
                   <CourseProgressCard
@@ -202,17 +202,20 @@ export default function StudentDashboard() {
   );
 }
 
-function StatCard({ icon, label, value, trend, color }) {
+function StatCard({ icon, label, value, unit, trend, color }) {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl flex items-center gap-5 hover-lift group">
-      <div className={`p-4 bg-${color}-500/10 rounded-2xl transition-transform group-hover:scale-110`}>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl flex items-center gap-5 hover-lift group transition-colors duration-300">
+      <div className={`p-4 rounded-2xl transition-transform group-hover:scale-110 bg-${color}-500/10`}>
         {icon}
       </div>
       <div>
-        <p className="text-xs font-bold text-gray-600 dark:text-gray-500 uppercase tracking-widest">{label}</p>
-        <div className="flex items-end gap-2 mt-1">
-          <h3 className="text-3xl font-black">{value}</h3>
-          <span className={`text-[10px] font-bold mb-1.5 px-1.5 py-0.5 rounded-md bg-${color}-500/10 text-${color}-500`}>
+        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-500">{label}</p>
+        <div className="flex items-baseline gap-1 mt-1">
+          <h3 className="text-3xl font-black text-slate-900 dark:text-white">{value}</h3>
+          {unit && (
+            <span className={`text-base font-bold text-${color}-600 dark:text-${color}-400`}>{unit}</span>
+          )}
+          <span className={`text-[9px] font-bold mb-1.5 px-1.5 py-0.5 rounded-md bg-${color}-500/10 text-${color}-500 ml-2`}>
             {trend}
           </span>
         </div>

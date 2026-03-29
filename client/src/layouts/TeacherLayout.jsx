@@ -21,17 +21,9 @@ const TeacherLayout = () => {
         <header className="h-20 flex items-center justify-between px-8 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-10">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">Teacher Workspace</h1>
-            <div className="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 border border-emerald-500/20">
-              <TrendingUp size={12}/> Live Status
-            </div>
           </div>
   
           <div className="flex items-center gap-6">
-            <button className="relative p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
-              <Bell size={20}/>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900"></span>
-            </button>
-
             <ThemeToggle />
 
             <div className="relative">

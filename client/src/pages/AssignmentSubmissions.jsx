@@ -42,13 +42,13 @@ export default function AssignmentSubmissions() {
     setLoading(true);
     try {
       const [subsRes, quizRes, coursesRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/assignments/teacher/all", {
+        axios.get("/api/assignments/teacher/all", {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get("http://localhost:5000/api/teacher/activity", {
+        axios.get("/api/teacher/activity", {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get("http://localhost:5000/api/courses/teacher", {
+        axios.get("/api/courses/teacher", {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -69,7 +69,7 @@ export default function AssignmentSubmissions() {
       return;
     }
     try {
-      await axios.put(`http://localhost:5000/api/assignments/grade/${submissionId}`, {
+      await axios.put(`/api/assignments/grade/${submissionId}`, {
         score: Number(score),
         feedback
       }, {

@@ -230,16 +230,23 @@ exports.getTeacherAllSubmissions = async (req, res) => {
 // ===============================
 exports.getPendingSubmissionsCount = async (req, res) => {
   try {
+    if (!req.user || !req.user.id) {
+      console.error("PENDING COUNT ERROR: User info missing");
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
     const teacherCourses = await Course.find({ teacher: req.user.id }).distinct("_id");
     
+    // Use $ne: "graded" as suggested for broader coverage
     const count = await AssignmentSubmission.countDocuments({
       course: { $in: teacherCourses },
-      status: "submitted"
+      status: { $ne: "graded" }
     });
 
     res.json({ count });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("PENDING COUNT ERROR (500):", error);
+    res.status(500).json({ message: "Server error calculating pending count" });
   }
 };
 

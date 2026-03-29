@@ -1,14 +1,7 @@
 
-
-// const QuizAttempt = require("../models/QuizAttempt");
-// const CourseProgress = require("../models/CourseProgress");
-// const Course = require("../models/Course");
-// const Lesson = require("../models/Lesson");
-// const mongoose = require("mongoose");
-
-// // ======================================================
-// // 🟢 STUDENT ANALYTICS DASHBOARD (POLISHED VERSION)
-// // ======================================================
+// ======================================================
+// 🟢 STUDENT ANALYTICS DASHBOARD (POLISHED VERSION)
+// ======================================================
 // exports.getStudentAnalytics = async (req, res) => {
 //   try {
 //     const studentId = new mongoose.Types.ObjectId(req.user.id);
@@ -319,6 +312,7 @@
 
 
 const QuizAttempt = require("../models/QuizAttempt");
+const Quiz = require("../models/Quiz");
 const CourseProgress = require("../models/CourseProgress");
 const Course = require("../models/Course");
 const Lesson = require("../models/Lesson");
@@ -587,49 +581,120 @@ exports.getCourseAnalytics = async (req, res) => {
 // 🟣 TEACHER DASHBOARD ANALYTICS
 // ======================================================
 exports.getTeacherAnalytics = async (req, res) => {
+  console.log("Teacher Analytics API HIT - User:", req.user?.id);
   try {
     const teacherId = new mongoose.Types.ObjectId(req.user.id);
+    const teacherIdStr = req.user.id;
 
-    // 1️⃣ GET TEACHER COURSES
-    const courses = await Course.find({
-      teacher: teacherId,
+    // 1️⃣ GET TEACHER COURSES (Robust: Match BOTH ObjectId and String)
+    const courses = await Course.find({ 
+      $or: [
+        { teacher: teacherId },
+        { teacher: teacherIdStr }
+      ]
     });
-
     const totalCourses = courses.length;
 
-    // 2️⃣ TOTAL STUDENTS
-    let totalStudents = 0;
+    const fs = require('fs');
+    const logData = `[DEBUG] Time: ${new Date().toISOString()}, UserID: ${req.user.id}, Role: ${req.user.role}, Courses Found: ${totalCourses}\n`;
+    fs.appendFileSync('server_debug.txt', logData);
 
-    courses.forEach((course) => {
-      totalStudents += course.enrolledStudents.length;
-    });
-
+    if (totalCourses === 0) {
+      const allC = await Course.find({}).limit(5);
+      const diagData = `[DIAGNOSE] System has ${await Course.countDocuments()} total courses. Sample Teachers in DB: ${allC.map(c => c.teacher).join(', ')}\n`;
+      fs.appendFileSync('server_debug.txt', diagData);
+    }
+    
     const courseIds = courses.map((course) => course._id);
 
-    // 3️⃣ TOTAL LESSONS
-    const totalLessons = await Lesson.countDocuments({
-      course: { $in: courseIds },
+    // 2️⃣ TOTAL STUDENTS (UNIQUE ENROLLED)
+    const uniqueStudents = new Set();
+    courses.forEach((course) => {
+      course.enrolledStudents.forEach((studentId) => {
+        uniqueStudents.add(studentId.toString());
+      });
+    });
+    const totalStudents = uniqueStudents.size;
+    const studentIds = Array.from(uniqueStudents).map(id => new mongoose.Types.ObjectId(id));
+
+    // 3️⃣ FETCH RELEVANT CONTENT (Robust: Match BOTH ObjectId and String)
+    const totalLessons = await Lesson.countDocuments({ course: { $in: [...courseIds, ...courseIds.map(id => id.toString())] } });
+    
+    // Assignments
+    const assignments = await Assignment.find({ course: { $in: [...courseIds, ...courseIds.map(id => id.toString())] } });
+    const totalAssignments = assignments.length;
+    const assignmentIds = assignments.map((a) => a._id);
+    const assignmentIdsStr = assignmentIds.map(id => id.toString());
+
+    // Submissions (Only for teacher's assignments)
+    const submissions = await AssignmentSubmission.find({ assignment: { $in: [...assignmentIds, ...assignmentIdsStr] } });
+
+    // Quizzes (Directly from Quiz model)
+    const quizzes = await Quiz.find({ course: { $in: [...courseIds, ...courseIds.map(id => id.toString())] } });
+    const quizIds = quizzes.map(q => q._id);
+
+    // QuizAttempts (Strictly for teacher's courses)
+    const quizAttempts = await QuizAttempt.find({ 
+      course: { $in: [...courseIds, ...courseIds.map(id => id.toString())] } 
+    }).populate("student", "name email");
+
+    const totalAttempts = quizAttempts.length;
+
+    // 4️⃣ DEBUG LOGS
+    console.log("Analytics Debug Log:");
+    console.log("- Teacher ID:", teacherId);
+    console.log("- Courses found:", totalCourses);
+    console.log("- Unique Students:", totalStudents);
+    console.log("- Assignments:", totalAssignments);
+    console.log("- Submissions:", submissions.length);
+    console.log("- Quizzes:", quizzes.length);
+    console.log("- Quiz Attempts:", totalAttempts);
+
+    // 5️⃣ CALCULATE PERFORMANCE METRICS
+    
+    // Assignment Performance
+    const assignmentPerformance = assignments.map((a) => {
+      const aSubs = submissions.filter(s => s.assignment.toString() === a._id.toString());
+      const graded = aSubs.filter(s => s.status === "graded");
+      const avgScore = graded.length > 0 ? Math.round(graded.reduce((acc, curr) => acc + (curr.score || curr.grade || 0), 0) / graded.length) : 0;
+      return {
+        assignmentName: a.title,
+        submissionRate: totalStudents > 0 ? Math.round((aSubs.length / totalStudents) * 100) : 0,
+        averageScore: avgScore
+      };
     });
 
-    // 4️⃣ TOTAL QUIZ ATTEMPTS
-    const totalAttempts = await QuizAttempt.countDocuments({
-      course: { $in: courseIds },
+    // Quiz Performance (Group by Course Quiz Title or Course Name)
+    const quizMap = {};
+    quizAttempts.forEach(attempt => {
+      // Find matching quiz title if possible
+      const qTitle = quizzes.find(q => q.course.toString() === attempt.course?.toString())?.title || "Course Quiz";
+      const groupKey = attempt.course?.toString() || 'unknown';
+      
+      if (!quizMap[groupKey]) {
+        quizMap[groupKey] = { name: qTitle, attempts: 0, totalScore: 0 };
+      }
+      quizMap[groupKey].attempts += 1;
+      quizMap[groupKey].totalScore += attempt.score || 0;
     });
 
-    // 5️⃣ RECENT COURSES
-    const recentCourses = await Course.find({
-      teacher: teacherId,
-    })
-      .sort({ createdAt: -1 })
-      .limit(5);
+    const quizPerformance = Object.values(quizMap).map(q => ({
+      quizName: q.name,
+      totalAttempts: q.attempts,
+      averageScore: q.attempts > 0 ? Math.round(q.totalScore / q.attempts) : 0
+    }));
 
-    // 6️⃣ RECENT SUBMISSIONS
+    // Summary Average Score (Average of all filtered quiz attempts)
+    let totalQuizScoreSum = 0;
+    quizAttempts.forEach(a => totalQuizScoreSum += (a.score || 0));
+    const avgQuizScore = totalAttempts > 0 ? Math.round(totalQuizScoreSum / totalAttempts) : 0;
+    const averageScore = avgQuizScore;
+
+    // 6️⃣ RECENT ACTIVITY & LEADERBOARD
+    
+    // Recent Submissions (for dashboard backward compatibility)
     const recentSubmissions = await AssignmentSubmission.find({
-      assignment: {
-        $in: await (
-          await mongoose.model("Assignment").find({ course: { $in: courseIds } })
-        ).map((a) => a._id),
-      },
+      assignment: { $in: assignmentIds },
     })
       .populate("student", "name email")
       .populate({
@@ -639,17 +704,126 @@ exports.getTeacherAnalytics = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5);
 
+    const recentCourses = await Course.find({ teacher: teacherId }).sort({ createdAt: -1 }).limit(5);
+
+    // Leaderboard (Top students from teacher's courses)
+    const allStudents = await User.find({
+      _id: { $in: studentIds },
+      role: "student",
+    }).select("name points email");
+
+    const leaderboard = allStudents.sort((a, b) => (b.points || 0) - (a.points || 0)).slice(0, 10);
+
+    // 7️⃣ ADVANCED INSIGHTS
+    
+    // At Risk Students
+    const atRiskStudents = [];
+    allStudents.forEach(student => {
+      const sId = student._id.toString();
+      const sSubs = submissions.filter(s => s.student && s.student.toString() === sId);
+      const sAtts = quizAttempts.filter(a => a.student && a.student.toString() === sId);
+      const avgQS = sAtts.length > 0 ? (sAtts.reduce((acc, curr) => acc + (curr.score || 0), 0) / sAtts.length) : 0;
+
+      if (sSubs.length === 0 && sAtts.length === 0) {
+        atRiskStudents.push({ name: student.name, reason: "No activity recorded" });
+      } else if (avgQS < 50 && sAtts.length > 0) {
+        atRiskStudents.push({ name: student.name, reason: `Low quiz average: ${Math.round(avgQS)}%` });
+      } else if (sSubs.length === 0 && assignments.length > 0) {
+        atRiskStudents.push({ name: student.name, reason: "No assignments submitted" });
+      }
+    });
+
+    // Engagement Rate (Active students / Total Enrolled)
+    const activeStudentIds = new Set([
+      ...submissions.map(s => s.student?.toString()),
+      ...quizAttempts.map(a => a.student?._id?.toString() || a.student?.toString())
+    ]);
+    activeStudentIds.delete(undefined);
+    const activeStudentsCount = activeStudentIds.size;
+    const engagementRate = totalStudents > 0 ? Math.round((activeStudentsCount / totalStudents) * 100) : 0;
+
+    // Final Response
     res.json({
       totalCourses,
       totalStudents,
       totalLessons,
-      totalAttempts,
+      totalAssignments,
+      totalAttempts, // Dashboard expects this at root
+      averageScore,
+      avgQuizScore, // Dashboard expects this at root
+      assignmentInfo: {
+        totalSubmissions: submissions.length,
+        pending: submissions.filter((s) => s.status === "submitted").length,
+        graded: submissions.filter((s) => s.status === "graded").length,
+      },
+      quizInfo: {
+        totalAttempts,
+        averageScore: avgQuizScore,
+      },
+      leaderboard: leaderboard.map((user, index) => ({
+        rank: index + 1,
+        name: user.name,
+        points: user.points || 0,
+      })),
       recentCourses,
       recentSubmissions,
+      assignmentPerformance,
+      quizPerformance,
+      topStudents: leaderboard.slice(0, 5).map(u => ({ name: u.name, points: u.points || 0 })),
+      atRiskStudents: atRiskStudents.slice(0, 5),
+      engagementRate
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("TEACHER ANALYTICS ERROR:", err);
+    return res.status(500).json({ message: "Error calculating analytics" });
+  }
+};
+
+// ======================================================
+// 📊 GET ENGAGEMENT ANALYTICS (TEACHER)
+// ======================================================
+exports.getEngagementAnalytics = async (req, res) => {
+  try {
+    const teacherId = new mongoose.Types.ObjectId(req.user.id);
+
+    const courses = await Course.find({ teacher: teacherId });
+    const courseIds = courses.map(c => c._id);
+    if (courseIds.length === 0) return res.json([]);
+
+    const assignments = await Assignment.find({ course: { $in: courseIds } });
+    const assignmentIds = assignments.map(a => a._id);
+
+    const submissions = await AssignmentSubmission.find({ 
+      status: "submitted",
+      assignment: { $in: assignmentIds }
+    });
+
+    const attempts = await QuizAttempt.find({ course: { $in: courseIds } });
+    if (submissions.length === 0 && attempts.length === 0) return res.json([]);
+
+    const engagementMap = {};
+
+    submissions.forEach(sub => {
+      const dateVal = sub.submittedAt || sub.createdAt;
+      if (!dateVal) return;
+      const date = new Date(dateVal).toISOString().split('T')[0];
+      if (!engagementMap[date]) engagementMap[date] = { date, submissions: 0, attempts: 0 };
+      engagementMap[date].submissions += 1;
+    });
+
+    attempts.forEach(att => {
+      const dateVal = att.attemptedAt || att.createdAt;
+      if (!dateVal) return;
+      const date = new Date(dateVal).toISOString().split('T')[0];
+      if (!engagementMap[date]) engagementMap[date] = { date, submissions: 0, attempts: 0 };
+      engagementMap[date].attempts += 1;
+    });
+
+    const formattedData = Object.values(engagementMap).sort((a, b) => new Date(a.date) - new Date(b.date));
+    res.json(formattedData);
+  } catch (err) {
+    console.error("ENGAGEMENT ANALYTICS ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 };

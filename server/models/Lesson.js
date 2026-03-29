@@ -33,6 +33,9 @@ const lessonSchema = new mongoose.Schema(
       type: String,
     },
 
+    pdfUrl: {
+      type: String,
+    },
     order: {
       type: Number,
       required: true,

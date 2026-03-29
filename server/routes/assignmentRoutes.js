@@ -103,35 +103,20 @@ router.delete(
   deleteAssignment
 );
 
-// GET SINGLE ASSIGNMENT
-router.get(
-  "/:id",
-  authMiddleware,
-  isTeacher,
-  getAssignment
-);
-
-// UPDATE ASSIGNMENT
-// router.put(
-//   "/:id",
-//   authMiddleware,
-//   isTeacher,
-//   updateAssignment
-// );
-
-router.put(
-  "/:id",
-  authMiddleware,
-  isTeacher,
-  upload.single("pdf"),
-  updateAssignment
-);
 // GET PENDING SUBMISSIONS COUNT
 router.get(
   "/pending-count",
   authMiddleware,
   isTeacher,
   getPendingSubmissionsCount
+);
+
+// GET SINGLE ASSIGNMENT
+router.get(
+  "/:id",
+  authMiddleware,
+  isTeacher,
+  getAssignment
 );
 
 module.exports = router;
